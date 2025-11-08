@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>运营辅助：AI问答与SEO监控</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="运营辅助工具：连接Claude生成大学问答、生成SEO监控报告">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="./top-nav.js" defer></script>
+</head>
+<body>
+  <div class="container layout-2col">
+    <aside class="section">
+      <h2>AI 问答助手</h2>
+      <div class="row">
+        <label>管理员密钥：</label>
+        <input id="admin-key" type="password" placeholder="可选，HJ_ADMIN_API_KEY" style="width:220px">
+      </div>
+      <div class="row">
+        <label>大学ID：</label>
+        <input id="ai-id" type="number" placeholder="如：1" style="width:120px">
+      </div>
+      <div class="row">
+        <label>或大学名称：</label>
+        <input id="ai-name" type="text" placeholder="如：北京大学" style="width:220px">
+      </div>
+      <div class="row">
+        <label>问题：</label>
+        <input id="ai-q" type="text" placeholder="可留空使用默认问题" style="width:280px">
+      </div>
+      <div class="row">
+        <button class="btn primary" id="btn-ai">生成问答</button>
+        <span class="hint" id="ai-hint"></span>
+      </div>
+      <pre id="ai-out" class="section" style="white-space:pre-wrap; max-height:420px; overflow:auto"></pre>
+    </aside>
+
+    <main class="section">
+      <h2>SEO 监控</h2>
+      <div class="row">
+        <label>管理员密钥（同上）：</label>
+        <input id="admin-key-dup" type="password" placeholder="可选，HJ_ADMIN_API_KEY" style="width:220px">
+      </div>
+      <div class="row">
+        <label>页面路径（可多行）：</label>
+      </div>
+      <textarea id="seo-paths" rows="6" style="width:100%" placeholder="默认会监控站点常用页面，例如：
+/index.html
+/search.html
+/university.html
+/assessment.html
+/mood-map.html
+/privacy.html
+/terms.html
+/disclaimer.html"></textarea>
+      <div class="row" style="margin-top:.6rem">
+        <button class="btn primary" id="btn-seo">生成监控报告</button>
+        <span class="hint" id="seo-hint"></span>
+      </div>
+      <pre id="seo-out" class="section" style="white-space:pre-wrap; max-height:520px; overflow:auto"></pre>
+      <div id="seo-summary" class="section" style="display:none; margin-top:.6rem;
+        padding:.8rem; background:#fafafa; border:1px solid #eee; border-radius:12px">
+      </div>
+</main>
+  </div>
+
+  <script>
+    const BASE = location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+    function getAdminKey() {
+      const k1 = document.getElementById('admin-key').value.trim();
+      const k2 = document.getElementById('admin-key-dup').value.trim();
+      return k2 || k1 || '';
+    }
+    async function postJSON(url, data) {
+      const headers = { 'Content-Type': 'application/json' };
+      const key = getAdminKey();
+      if (key) headers['X-Admin-Key'] = key;
+      const res = await fetch(url, { method: 'POST', headers, body: JSON.stringify(data) });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    }
+    document.getElementById('btn-ai').addEventListener('click', async () => {
+      const id = document.getElementById('ai-id').value.trim();
+      const name = document.getElementById('ai-name').value.trim();
+      const q = document.getElementById('ai-q').value.trim();
+      const hint = document.getElementById('ai-hint');
+      const out = document.getElementById('ai-out');
+      hint.textContent = '请求中...'; out.textContent = '';
+      try {
+        const payload = {};
+        if (id) payload.id = parseInt(id, 10);
+        if (name) payload.name = name;
+        if (q) payload.question = q;
+        const data = await postJSON(`${BASE}/api/ai_qa.php`, payload);
+        hint.textContent = data.answer?.dry_run ? '已返回示例（dry-run）' : '已返回模型结果';
+        out.textContent = JSON.stringify(data, null, 2);
+      } catch (e) { hint.textContent = '出错：' + e.message; }
+    });
+
+    document.getElementById('btn-seo').addEventListener('click', async () => {
+      const raw = document.getElementById('seo-paths').value.trim();
+      const hint = document.getElementById('seo-hint');
+      const out = document.getElementById('seo-out');
+      hint.textContent = '扫描中...'; out.textContent = '';
+      try {
+        const paths = raw ? raw.split(/\n+/).map(s => s.replace(/^\/+/, '')) : undefined;
+        const data = await postJSON(`${BASE}/api/seo_monitor.php`, paths ? { paths } : {});
+        hint.textContent = '报告生成完成';
+        out.textContent = JSON.stringify(data, null, 2);
+        renderSeoSummary(data);
+      } catch (e) { hint.textContent = '出错：' + e.message; }
+    });
+
+    function renderSeoSummary(data) {
+      const box = document.getElementById('seo-summary');
+      if (!data || !Array.isArray(data.pages)) { box.style.display = 'none'; return; }
+      const sum = data.summary || {};
+      const target = sum.monitor_target || '';
+      const ok = sum.pages_ok ?? 0;
+      const warn = sum.pages_warn ?? 0;
+      const avg = sum.avg_score ?? 0;
+      const rows = data.pages.map(p => {
+        const m = p.metrics || {};
+        const h1 = m.structure?.h1_count ?? 0;
+        const h2 = m.structure?.h2_count ?? 0;
+        const score = m.score ?? '-';
+        return `<tr><td>${p.path}</td><td>${h1}</td><td>${h2}</td><td>${score}</td></tr>`;
+      }).join('');
+      box.innerHTML = `
+        <div style="display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:.6rem">
+          <div>目标：<strong>${target}</strong></div>
+          <div>通过：<strong style="color:#166534">${ok}</strong></div>
+          <div>提醒：<strong style="color:#b45309">${warn}</strong></div>
+          <div>平均分：<strong>${avg}</strong></div>
+        </div>
+        <div style="overflow:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:14px">
+            <thead><tr><th style="text-align:left;">路径</th><th>H1</th><th>H2</th><th>分数</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+      box.style.display = 'block';
+    }
+  </script>
+  <div id="site-footer"></div>
+  <script src="site-footer.js"></script>
+</body>
+</html>

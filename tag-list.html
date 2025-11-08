@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>标签聚合 - 绘斓</title>
+  <meta name="description" content="按性格标签聚合展示院校，支持简约风筛选与卡片网格。" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f7f8fb; color: #333; margin: 0; }
+    .container { max-width: 980px; margin: 0 auto; padding: 16px; }
+    .header { background: #fff; border-bottom: 1px solid #eee; }
+    .hero { padding: 16px 0; }
+    .hero h1 { margin: 0; font-size: 1.4rem; }
+    .sub { color: #666; margin-top: .3rem; font-size: .95rem; }
+    .section { background: white; border: 1px solid #eee; border-radius: 12px; padding: 1rem; margin-top: 1rem; }
+    .section h3 { margin-bottom: .6rem; font-size: 1.05rem; }
+    /* 简约标签 */
+    .chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .chip { display: inline-flex; align-items: center; gap: .28rem; padding: .25rem .55rem; border-radius: 999px; border: 1px solid #e6e8ef; background: #fff; font-size: .85rem; color: #555; cursor: pointer; }
+    .chip.active { border-color: #667eea; color: #333; box-shadow: 0 0 0 3px #667eea22; }
+    .placeholder { color: #888; font-size: .9rem; }
+    .hint { color: #777; font-size: .85rem; margin-top: .4rem; }
+    /* INS风格卡片网格 */
+    .ins-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    @media (max-width: 860px) { .ins-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 520px) { .ins-grid { grid-template-columns: 1fr; } }
+    .ins-card { position: relative; border-radius: 12px; overflow: hidden; background: #fff; border: 1px solid #eee; cursor: pointer; }
+    .ins-img { width: 100%; aspect-ratio: 1 / 1; object-fit: cover; background: #fafafa; }
+    .ins-overlay { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 12px; background: rgba(255,255,255,.82); border-top: 1px solid #eee; backdrop-filter: saturate(140%) blur(6px); }
+    .ins-name { font-weight: 600; font-size: .98rem; color: #333; }
+    .ins-one { font-size: .85rem; color: #666; margin-top: .2rem; }
+  </style>
+</head>
+<body>
+  <div id="top-nav"></div>
+  <main class="container">
+    <div class="hero">
+      <h1>按性格标签找院校</h1>
+      <div class="sub">选择一个标签，查看对应院校卡片列表（简约风）</div>
+    </div>
+
+    <div class="section">
+      <h3>标签</h3>
+      <div id="tagBox" class="chips"><span class="placeholder">正在加载标签...</span></div>
+      <div class="hint">标签来自 `/api/personality_tags`，数据量较大时首次筛选可能稍慢</div>
+    </div>
+
+    <div class="section">
+      <h3 id="resultTitle">院校列表</h3>
+      <div id="loading" class="placeholder">请选择一个标签</div>
+      <div id="grid" class="ins-grid" style="display:none;"></div>
+      <div id="empty" class="placeholder" style="display:none;">未找到匹配院校</div>
+    </div>
+  </main>
+
+  <script src="./top-nav.js"></script>
+  <script>
+    const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+    const apiBase = base + '/api';
+    const state = {
+      tags: [],
+      activeTagId: null,
+      universities: [],
+      tagMap: new Map() // tagId -> university[]
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadTags();
+      await loadUniversities();
+      renderTags();
+    });
+
+    async function loadTags() {
+      const tagBox = document.getElementById('tagBox');
+      try {
+        const res = await fetch(`${apiBase}/personality_tags`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        const list = (json && json.success && json.data && Array.isArray(json.data)) ? json.data : [];
+        state.tags = list.map(t => ({ id: t.id, name: t.tag_name, desc: t.description || '' }));
+        tagBox.innerHTML = '';
+      } catch (e) {
+        tagBox.innerHTML = '<span class="placeholder">标签加载失败</span>';
+      }
+    }
+
+    async function loadUniversities() {
+      try {
+        const res = await fetch(`${apiBase}/universities?page=1&per_page=100`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const json = await res.json();
+        state.universities = Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
+      } catch (e) {
+        // 回退空
+        state.universities = [];
+      }
+    }
+
+    function renderTags() {
+      const tagBox = document.getElementById('tagBox');
+      if (!state.tags.length) {
+        tagBox.innerHTML = '<span class="placeholder">暂无标签</span>';
+        return;
+      }
+      tagBox.innerHTML = state.tags.map(t => `<span class="chip" data-id="${t.id}" title="${escapeHtml(t.desc)}">${escapeHtml(t.name)}</span>`).join('');
+      tagBox.querySelectorAll('.chip').forEach(ch => {
+        ch.addEventListener('click', () => {
+          const id = parseInt(ch.getAttribute('data-id'), 10);
+          state.activeTagId = id;
+          tagBox.querySelectorAll('.chip').forEach(x => x.classList.toggle('active', parseInt(x.getAttribute('data-id'), 10) === id));
+          document.getElementById('resultTitle').textContent = '院校列表 · ' + (state.tags.find(t => t.id === id)?.name || '标签');
+          filterByTag(id);
+        });
+      });
+    }
+
+    async function filterByTag(tagId) {
+      const loading = document.getElementById('loading');
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+      loading.style.display = 'block';
+      grid.style.display = 'none';
+      empty.style.display = 'none';
+
+      // 缓存命中
+      if (state.tagMap.has(tagId)) {
+        const list = state.tagMap.get(tagId) || [];
+        renderGrid(list);
+        return;
+      }
+
+      // 逐校查询其标签，聚合匹配项（限制并发）
+      const matches = [];
+      const ids = state.universities.map(u => u.id);
+      const chunkSize = 10;
+      for (let i = 0; i < ids.length; i += chunkSize) {
+        const chunk = ids.slice(i, i + chunkSize);
+        const tasks = chunk.map(id => fetch(`${apiBase}/university/${id}/tags`).then(r => r.ok ? r.json() : null).catch(() => null));
+        const results = await Promise.all(tasks);
+        results.forEach((json, idx) => {
+          if (!json || !json.success) return;
+          const tags = (json.data && Array.isArray(json.data.tags)) ? json.data.tags : [];
+          const has = tags.some(t => parseInt(t.id, 10) === tagId);
+          if (has) {
+            const uni = state.universities.find(u => u.id === chunk[idx]);
+            if (uni) matches.push(uni);
+          }
+        });
+      }
+
+      state.tagMap.set(tagId, matches);
+      renderGrid(matches);
+    }
+
+    function renderGrid(list) {
+      const loading = document.getElementById('loading');
+      const grid = document.getElementById('grid');
+      const empty = document.getElementById('empty');
+
+      loading.style.display = 'none';
+      if (!list.length) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+      grid.innerHTML = list.map(u => `
+        <div class="ins-card" onclick="navigateToUniversity(${u.id})" title="${escapeHtml(u.name)}">
+          <img class="ins-img" src="${u.logo_url || generateLogoSvg(u.name, 300)}" alt="${escapeHtml(u.name)}" loading="lazy" />
+          <div class="ins-overlay">
+            <div class="ins-name">${escapeHtml(u.name)}</div>
+            <div class="ins-one">${escapeHtml(u.one_line || '点击查看详情')}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function navigateToUniversity(id) {
+      const path = (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '') + `/university.html?id=${id}`;
+      window.location.href = path;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+    }
+
+    function generateLogoSvg(name, size = 300) {
+      const initial = (name || 'U').trim().charAt(0);
+      let hash = 0;
+      for (let i = 0; i < (name || '').length; i++) {
+        hash = ((hash << 5) - hash) + name.charCodeAt(i);
+        hash |= 0;
+      }
+      const hue = Math.abs(hash) % 360;
+      const bg = `hsl(${hue}, 70%, 55%)`;
+      const svg = `<?xml version='1.0' encoding='UTF-8'?>\n<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>\n  <rect width='${size}' height='${size}' rx='10' fill='${bg}'/>\n  <text x='50%' y='50%' font-size='${Math.round(size*0.55)}' text-anchor='middle' dominant-baseline='middle' fill='#ffffff' font-family='Segoe UI, Microsoft YaHei, Arial'>${initial}</text>\n</svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+  </script>
+</body>
+</html>

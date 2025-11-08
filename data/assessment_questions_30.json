@@ -1,0 +1,320 @@
+{
+  "admin_password": "<REPLACE_WITH_ADMIN_PASSWORD>",
+  "questions": [
+    {
+      "question_text": "你在学习中最享受的部分是？",
+      "options": [
+        {"option_text": "把理论变成可运行的作品", "weights": [{"mood_type_id": 1, "weight": 3}, {"mood_type_id": 6, "weight": 1}]},
+        {"option_text": "深入研究原理与推导", "weights": [{"mood_type_id": 3, "weight": 3}, {"mood_type_id": 2, "weight": 1}]},
+        {"option_text": "与人讨论、组织学习活动", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "创作有审美与表达的作品", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你选择大学专业时最看重的是？",
+      "options": [
+        {"option_text": "实践能力与就业场景", "weights": [{"mood_type_id": 1, "weight": 3}, {"mood_type_id": 6, "weight": 1}]},
+        {"option_text": "学术深度与研究氛围", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "人脉平台与社团资源", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "创意空间与艺术生态", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "面对复杂问题，你的第一步是？",
+      "options": [
+        {"option_text": "拆分模块并快速原型验证", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "查阅论文构建理论框架", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "召集伙伴共同头脑风暴", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "从不同角度创造性重构", "weights": [{"mood_type_id": 6, "weight": 3}, {"mood_type_id": 4, "weight": 1}]}
+      ]
+    },
+    {
+      "question_text": "你理想的校园活动更偏向于？",
+      "options": [
+        {"option_text": "技术竞赛与工程实践", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "学术论坛与科研沙龙", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社团组织与公共服务", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "艺术展演与创意工作坊", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对课程考核方式的偏好是？",
+      "options": [
+        {"option_text": "项目驱动与实作评估", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "论文报告与口试", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "展示与团队协作成果", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "作品集与审美评价", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你更期待大学提供什么资源？",
+      "options": [
+        {"option_text": "先进实验室与工程平台", "weights": [{"mood_type_id": 1, "weight": 3}, {"mood_type_id": 6, "weight": 1}]},
+        {"option_text": "图书馆与研究数据库", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社交空间与校友网络", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "创作场地与展陈空间", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你在团队中的常见角色是？",
+      "options": [
+        {"option_text": "解决问题的实干派", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "提出假设的研究者", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "协调沟通的组织者", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "构思方案的创意者", "weights": [{"mood_type_id": 6, "weight": 3}, {"mood_type_id": 4, "weight": 1}]}
+      ]
+    },
+    {
+      "question_text": "你最享受的成果形式是？",
+      "options": [
+        {"option_text": "可以落地的原型或产品", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "被引用的论文与模型", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "被认可的团队影响力", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "令人共鸣的艺术作品", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你喜欢的学习方式是？",
+      "options": [
+        {"option_text": "做中学，边实践边迭代", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "读中思，系统化研读", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "聊中悟，共同讨论分享", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "创中合，跨界融合创新", "weights": [{"mood_type_id": 6, "weight": 3}, {"mood_type_id": 4, "weight": 1}]}
+      ]
+    },
+    {
+      "question_text": "你更向往的毕业去向是？",
+      "options": [
+        {"option_text": "工程技术与产品开发", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "学术研究与继续深造", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "公共治理与社会服务", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "艺术设计与文化产业", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对导师/老师的期待是？",
+      "options": [
+        {"option_text": "给出工程指导与实战经验", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "提供研究方向与方法论", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "帮助拓展人脉与资源", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "强调美学修养与创意表达", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "遇到学业挫折时你会？",
+      "options": [
+        {"option_text": "调整方案继续尝试", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "查找文献重新论证", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "寻求伙伴与导师帮助", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "换个角度大胆创新", "weights": [{"mood_type_id": 6, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对通识教育的看法是？",
+      "options": [
+        {"option_text": "为工程提供宽广视野", "weights": [{"mood_type_id": 1, "weight": 3}, {"mood_type_id": 6, "weight": 1}]},
+        {"option_text": "支撑学术的跨学科理解", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "促进社会沟通与公民素养", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "提升审美与文化表达力", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你喜欢参与的课题类型是？",
+      "options": [
+        {"option_text": "面向应用的工程课题", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "探索未知的基础研究", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "解决社会问题的行动项目", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "融合艺术与科技的跨界课题", "weights": [{"mood_type_id": 6, "weight": 3}, {"mood_type_id": 4, "weight": 1}]}
+      ]
+    },
+    {
+      "question_text": "你看待“名校效应”的态度是？",
+      "options": [
+        {"option_text": "为未来工程实践加分", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "有利于科研平台与资源", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "提升社会影响与合作机会", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "促进文化传播与创意生态", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对国际化教育的理解是？",
+      "options": [
+        {"option_text": "引入先进工程实践", "weights": [{"mood_type_id": 1, "weight": 2}, {"mood_type_id": 6, "weight": 2}]},
+        {"option_text": "对前沿学术的深度接触", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "增强跨文化沟通能力", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "丰富艺术视野与表达", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你更看重校园排名的哪部分指标？",
+      "options": [
+        {"option_text": "工程与创新产出", "weights": [{"mood_type_id": 1, "weight": 3}, {"mood_type_id": 6, "weight": 1}]},
+        {"option_text": "科研论文与学术影响力", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社会贡献与校友网络", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "文化建设与艺术生态", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你如何安排繁忙的任务？",
+      "options": [
+        {"option_text": "优先拆解并快速交付", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "设定研究阶段性目标", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "协调团队分工推进", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "尝试新的工具方法", "weights": [{"mood_type_id": 6, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对跨学科课程的期待是？",
+      "options": [
+        {"option_text": "提升工程与设计整合能力", "weights": [{"mood_type_id": 1, "weight": 2}, {"mood_type_id": 6, "weight": 2}]},
+        {"option_text": "在研究中实现知识融合", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "促进不同群体协作", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "激发创意表达灵感", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你认为理想的毕业作品应该是？",
+      "options": [
+        {"option_text": "可落地解决真实问题的工程作品", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "有扎实理论支撑的研究成果", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "反映社会价值的协作项目", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "具有美学高度的艺术作品", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你在社团活动中的偏好是？",
+      "options": [
+        {"option_text": "技术类社团（机器人、编程等）", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "学术类社团（学术交流、阅读）", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "公共服务与志愿组织", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "艺术类社团（设计、表演等）", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对创新创业的看法是？",
+      "options": [
+        {"option_text": "以工程落地为导向", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "以技术突破为核心", "weights": [{"mood_type_id": 6, "weight": 3}]},
+        {"option_text": "以社会需求为驱动", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "以创意表达为特色", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对课程难度的理想是？",
+      "options": [
+        {"option_text": "挑战但能实践掌握", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "深入但有研究路径", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "适中并兼顾合作", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "灵活鼓励创意探索", "weights": [{"mood_type_id": 6, "weight": 2}, {"mood_type_id": 4, "weight": 2}]}
+      ]
+    },
+    {
+      "question_text": "你对校园文化的核心期待？",
+      "options": [
+        {"option_text": "务实开放的工程文化", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "严谨求真的学术文化", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "互助包容的社交文化", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "多元自由的艺术文化", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你经常关注的资讯类型是？",
+      "options": [
+        {"option_text": "新技术与产品动态", "weights": [{"mood_type_id": 1, "weight": 2}, {"mood_type_id": 6, "weight": 2}]},
+        {"option_text": "学术会议与论文趋势", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社会议题与公共政策", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "文化艺术与设计潮流", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你最享受的校园空间是？",
+      "options": [
+        {"option_text": "实验室与创客空间", "weights": [{"mood_type_id": 1, "weight": 2}, {"mood_type_id": 6, "weight": 2}]},
+        {"option_text": "图书馆与研究室", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社团活动中心与共享空间", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "美术馆与演出厅", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你认为重要的软技能是？",
+      "options": [
+        {"option_text": "工程化思维与问题拆解", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "研究方法与批判性思维", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "沟通协作与影响力", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "审美素养与创意表达", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你理想的学术共同体是？",
+      "options": [
+        {"option_text": "工程与产业紧密连接", "weights": [{"mood_type_id": 1, "weight": 2}, {"mood_type_id": 6, "weight": 2}]},
+        {"option_text": "学术与研究深度绑定", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社会组织与公共议题", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "文化创意与艺术共同体", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你在时间管理上的策略是？",
+      "options": [
+        {"option_text": "设定里程碑快速交付", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "安排长周期深入研究", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "与伙伴同步排期推进", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "留出创新探索的弹性", "weights": [{"mood_type_id": 6, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对校园生活的核心期待是？",
+      "options": [
+        {"option_text": "工程实践与职业体验", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "学术探究与思想交流", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社群连结与共同成长", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "文化审美与艺术参与", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你认为好的课程评价应该包含？",
+      "options": [
+        {"option_text": "原型实现与工程完整度", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "研究问题与方法严谨性", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "团队协作与影响力", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "创意表达与审美高度", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你做选题时更看重？",
+      "options": [
+        {"option_text": "可落地的工程价值", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "学术问题的前沿性", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "社会问题的现实性", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "文化表达的独特性", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你在信息过载时的做法是？",
+      "options": [
+        {"option_text": "筛选关键并快速实践", "weights": [{"mood_type_id": 1, "weight": 3}]},
+        {"option_text": "建立模型并系统梳理", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "与伙伴交流共同过滤", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "寻找独特视角重构问题", "weights": [{"mood_type_id": 6, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你更愿意投入的校级项目是？",
+      "options": [
+        {"option_text": "工程中心或产学合作", "weights": [{"mood_type_id": 1, "weight": 2}, {"mood_type_id": 6, "weight": 2}]},
+        {"option_text": "科研基金与学术竞赛", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "公益项目与社会实践", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "艺术节与创意孵化", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    },
+    {
+      "question_text": "你对导师制度的偏好是？",
+      "options": [
+        {"option_text": "企业导师与工程指导", "weights": [{"mood_type_id": 1, "weight": 2}, {"mood_type_id": 6, "weight": 2}]},
+        {"option_text": "学术导师与研究训练", "weights": [{"mood_type_id": 3, "weight": 3}]},
+        {"option_text": "生涯导师与社群链接", "weights": [{"mood_type_id": 5, "weight": 3}]},
+        {"option_text": "艺术导师与创意提升", "weights": [{"mood_type_id": 4, "weight": 3}]}
+      ]
+    }
+  ]
+}

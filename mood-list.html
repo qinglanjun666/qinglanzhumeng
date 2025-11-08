@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>气质大学列表</title>
+    <meta name="description" content="按气质类型筛选的大学列表" />
+    <link rel="stylesheet" href="styles.css" />
+    <style>
+        :root { --accent: #667eea; }
+        body { font-family: 'Segoe UI', 'Microsoft YaHei', Arial, sans-serif; color: #111827; background: #f7f8fb; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+        .page-header { margin-bottom: 1.25rem; }
+        .page-title { font-size: 2rem; font-weight: 800; margin: 0 0 .25rem; letter-spacing: .5px; }
+        .page-subtitle { color: #6b7280; margin: 0; }
+        .toolbar { display: flex; align-items: center; gap: .75rem; margin-top: .75rem; }
+        .back-link { color: var(--accent); text-decoration: none; }
+        /* INS 风格网格 */
+        .ins-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
+        .ins-card { position: relative; aspect-ratio: 1/1; border-radius: 18px; overflow: hidden; cursor: pointer; box-shadow: 0 10px 30px rgba(0,0,0,.08); border: 1px solid rgba(0,0,0,.06); background: linear-gradient(180deg, rgba(255,255,255,.9), rgba(255,255,255,.6)); }
+        .ins-card:hover { transform: translateY(-2px); transition: transform .2s ease; box-shadow: 0 16px 40px rgba(0,0,0,.12); }
+        .ins-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(1.05) contrast(1.02); }
+        .ins-overlay { position: absolute; inset: auto 10px 10px 10px; background: rgba(255,255,255,.85); backdrop-filter: blur(6px); border-radius: 12px; padding: .5rem .6rem; display: flex; flex-direction: column; gap: 4px; border: 1px solid rgba(0,0,0,.06); }
+        .ins-name { font-size: .95rem; font-weight: 700; color: #1f2937; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ins-one { font-size: .82rem; color: #6b7280; line-height: 1.3; max-height: 2.6em; overflow: hidden; }
+        /* 顶部轻微色带强化主题 */
+        .accent-bar { height: 6px; width: 100%; border-radius: 999px; background: var(--accent); opacity: .2; margin: .6rem 0 1rem; }
+        .loading { text-align: center; color: #6b7280; padding: 1.5rem; }
+        .error { background: #fee2e2; color: #b91c1c; padding: .75rem; border-radius: 8px; display: none; }
+    </style>
+</head>
+<body>
+    <!-- 统一顶部导航占位（由 top-nav.js 注入） -->
+    <div id="top-nav"></div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title" id="pageTitle">气质大学列表</h1>
+            <p class="page-subtitle" id="pageSubtitle">根据选择的气质类型展示匹配的院校</p>
+            <div class="toolbar">
+                <a class="back-link" href="index.html">← 返回首页</a>
+            </div>
+        </div>
+
+        <div class="accent-bar"></div>
+        <div class="error" id="errorBox"></div>
+        <div class="loading" id="loadingBox">正在加载数据...</div>
+        <div class="ins-grid" id="listGrid" style="display:none;"></div>
+    </div>
+
+    <!-- 统一站点底部占位（由 site-footer.js 注入） -->
+    <div id="site-footer"></div>
+
+    <script>
+        function getQueryParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // 兼容旧命名的别名映射，避免用户手动输入导致无效slug
+        function normalizeMoodSlug(slug) {
+            const map = {
+                'analytical-creative': 'rational_creator',
+                'artistic-explorer': 'artistic_dreamer',
+                'pragmatic-applied': 'practical_leader',
+                'social-leadership': 'social_harmonizer'
+            };
+            return map[slug] || slug;
+        }
+
+        function generateLogoSvg(name, size = 56) {
+            const initial = (name || 'U').trim().charAt(0);
+            let hash = 0;
+            for (let i = 0; i < (name || '').length; i++) {
+                hash = ((hash << 5) - hash) + name.charCodeAt(i);
+                hash |= 0;
+            }
+            const hue = Math.abs(hash) % 360;
+            const bg = `hsl(${hue}, 70%, 55%)`;
+            const svg = `<?xml version='1.0' encoding='UTF-8'?>\n<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>\n  <rect width='${size}' height='${size}' rx='10' fill='${bg}'/>\n  <text x='50%' y='50%' font-size='${Math.round(size*0.55)}' text-anchor='middle' dominant-baseline='middle' fill='#ffffff' font-family='Segoe UI, Microsoft YaHei, Arial'>${initial}</text>\n</svg>`;
+            return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        function navigateToUniversity(id) {
+            const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+            const DELETED_UNIVERSITY_IDS = new Set([11, 12]);
+            if (DELETED_UNIVERSITY_IDS.has(id)) {
+                alert('该页面已删除：不是学校的内容');
+                return;
+            }
+            window.location.href = `${base}/university.html?id=${id}`;
+        }
+
+        async function initPage() {
+            let slug = getQueryParam('slug');
+            const errorBox = document.getElementById('errorBox');
+            const loadingBox = document.getElementById('loadingBox');
+            const listGrid = document.getElementById('listGrid');
+
+            if (!slug) {
+                errorBox.style.display = 'block';
+                errorBox.textContent = '缺少气质参数：请通过首页气质类型进入此页面。';
+                loadingBox.style.display = 'none';
+                return;
+            }
+
+            // 归一化 slug，支持别名
+            slug = normalizeMoodSlug(slug);
+
+            const baseApi = window.location.pathname.includes('huilanweb') ? '/huilanweb/api' : '/api';
+            try {
+                // 拉取气质类型，找到当前气质的名称与描述
+                const moodResp = await fetch(`${baseApi}/mood_types`);
+                if (!moodResp.ok) throw new Error('气质类型接口不可用');
+                const moodData = await moodResp.json();
+                const moods = (moodData && moodData.data && moodData.data.mood_types) ? moodData.data.mood_types : [];
+                const mood = moods.find(m => m.slug === slug);
+                if (mood) {
+                    document.getElementById('pageTitle').textContent = `${mood.name} · 匹配大学`;
+                    document.getElementById('pageSubtitle').textContent = mood.short_desc || '按气质类型筛选的大学列表';
+                    // 应用气质主题色
+                    document.documentElement.style.setProperty('--accent', mood.color || '#667eea');
+                }
+
+                // 拉取大学列表
+                const uniResp = await fetch(`${baseApi}/universities?mood_type=${encodeURIComponent(slug)}&per_page=50`);
+                if (!uniResp.ok) {
+                    // 针对常见错误提供更友好的提示
+                    if (uniResp.status === 400) {
+                        throw new Error('无效的气质参数或该气质暂无院校');
+                    }
+                    throw new Error('大学列表接口不可用');
+                }
+                const uniData = await uniResp.json();
+                const list = Array.isArray(uniData.data) ? uniData.data : [];
+
+                loadingBox.style.display = 'none';
+                if (list.length === 0) {
+                    errorBox.style.display = 'block';
+                    errorBox.textContent = '当前气质暂未收录匹配院校，稍后再来看看～';
+                } else {
+                    renderList(list);
+                    listGrid.style.display = 'grid';
+                }
+            } catch (err) {
+                loadingBox.style.display = 'none';
+                errorBox.style.display = 'block';
+                errorBox.textContent = `加载失败：${err.message || '未知错误'}`;
+            }
+        }
+
+        function renderList(list) {
+            const grid = document.getElementById('listGrid');
+            grid.innerHTML = list.map(u => `
+                <div class="ins-card" onclick="navigateToUniversity(${u.id})">
+                    <img class="ins-img" src="${u.logo_url || generateLogoSvg(u.name, 320)}" alt="${u.name}" loading="lazy" />
+                    <div class="ins-overlay">
+                        <div class="ins-name">${u.name}</div>
+                        <div class="ins-one">${u.one_line || '匹配的院校（占位）'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+
+    <!-- 统一顶部导航脚本 -->
+    <script src="top-nav.js"></script>
+    <script src="site-footer.js"></script>
+</body>
+</html>

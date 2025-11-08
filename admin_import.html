@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>大学数据导入（管理员）</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Microsoft YaHei", sans-serif; margin: 0; background: #f7f7fb; color: #222; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 28px; }
+        h1 { margin: 0 0 8px; font-size: 24px; }
+        .desc { color: #666; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        label { font-weight: 600; color: #333; }
+        input[type="password"], select, input[type="file"], textarea { padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        textarea { min-height: 120px; }
+        .actions { display: flex; gap: 12px; margin-top: 18px; }
+        button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .primary { background: #4f46e5; color: #fff; }
+        .secondary { background: #e5e7eb; color: #111827; }
+        .status { margin-top: 16px; font-size: 14px; color: #555; }
+        .result { margin-top: 24px; background: #fafafa; border: 1px solid #eee; border-radius: 12px; padding: 16px; }
+        .counts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 10px; }
+        .card { background: #fff; border: 1px solid #eee; border-radius: 10px; padding: 12px; text-align: center; }
+        .card .label { color: #666; font-size: 13px; }
+        .card .value { font-size: 20px; font-weight: 700; margin-top: 6px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+        th, td { border: 1px solid #eee; padding: 8px; font-size: 13px; }
+        th { background: #f3f4f6; text-align: left; }
+        .hint { font-size: 12px; color: #666; }
+        .warn { color: #b45309; }
+        .success { color: #166534; }
+        .error { color: #b91c1c; }
+    </style>
+    <script>
+        async function importCSV() {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = '正在导入，请稍候…';
+            const password = document.getElementById('password').value.trim();
+            const matchBy = document.getElementById('match_by').value;
+            const fileInput = document.getElementById('file');
+            const csvText = document.getElementById('csv_text').value.trim();
+
+            if (!password) { statusEl.textContent = '请填写管理员密码'; return; }
+            if (!fileInput.files.length && !csvText) { statusEl.textContent = '请上传CSV文件或粘贴CSV文本'; return; }
+
+            const form = new FormData();
+            form.append('match_by', matchBy);
+            form.append('password', password);
+            if (fileInput.files.length) form.append('file', fileInput.files[0]);
+            if (csvText) form.append('csv_text', csvText);
+
+            try {
+                // 在静态预览(8080)下，API需要走本机Apache(http://localhost/huilanweb)
+                const origin = window.location.origin;
+                // 若运行在 8080（PHP 内置或静态），优先同源调用 /api/...；否则走 /huilanweb/api/...（Apache）
+                const API_BASE = origin.includes(':8080') ? '' : '/huilanweb';
+                const res = await fetch(`${API_BASE}/api/admin/import/universities`, {
+                    method: 'POST',
+                    body: form,
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    statusEl.innerHTML = `<span class="error">导入失败：</span> ${data.error || data.message || 'Unknown error'}`;
+                    return;
+                }
+
+                statusEl.innerHTML = `<span class="success">导入完成。</span> 匹配方式：${data.matched_by}`;
+                renderReport(data);
+            } catch (e) {
+                statusEl.innerHTML = `<span class="error">网络或服务器错误：</span> ${e.message}`;
+            }
+        }
+
+        function renderReport(r) {
+            document.getElementById('inserted').textContent = r.inserted_count ?? 0;
+            document.getElementById('updated').textContent = r.updated_count ?? 0;
+            document.getElementById('success').textContent = r.success_count ?? 0;
+            document.getElementById('failed').textContent = r.failure_count ?? 0;
+
+            const warnList = document.getElementById('warnings');
+            warnList.innerHTML = '';
+            (r.warnings || []).forEach(w => {
+                const li = document.createElement('li');
+                li.className = 'warn';
+                li.textContent = w;
+                warnList.appendChild(li);
+            });
+
+            const tbody = document.getElementById('errors_body');
+            tbody.innerHTML = '';
+            (r.errors || []).forEach(err => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${err.row ?? ''}</td><td>${err.name ?? ''}</td><td>${err.error ?? ''}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+    </script>
+</head>
+<body>
+    <div id="top-nav"></div>
+    <div class="container">
+        <h1>大学数据导入（管理员）</h1>
+        <div class="desc">支持CSV导入，字段包含：<code>name, province, city, type, mood_slug, keywords, one_line, logo_url</code>。可选择按 <code>name</code> 或 <code>external_id</code> 匹配（若未配置 external_id 列则自动回退到 name）。</div>
+
+        <div class="grid">
+            <div class="field">
+                <label for="password">管理员密码</label>
+                <input id="password" type="password" placeholder="默认 zxasqw123456，可通过环境变量 HJ_ADMIN_PASSWORD 覆盖" />
+            </div>
+            <div class="field">
+                <label for="match_by">匹配方式</label>
+                <select id="match_by">
+                    <option value="name">name（默认）</option>
+                    <option value="external_id">external_id（若支持）</option>
+                </select>
+                <div class="hint">external_id 列如未在数据库配置，将回退到 name 并提示。</div>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top:12px;">
+            <div class="field">
+                <label for="file">上传CSV文件</label>
+                <input id="file" type="file" accept=".csv,text/csv" />
+            </div>
+            <div class="field">
+                <label for="csv_text">或粘贴CSV文本</label>
+                <textarea id="csv_text" placeholder="name,province,city,type,mood_slug,keywords,one_line,logo_url\n示例大学,省份,城市,类型,rational_creator,关键词1|关键词2,一句话描述,https://logo.example.png"></textarea>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="primary" onclick="importCSV()">开始导入</button>
+            <button class="secondary" onclick="document.getElementById('csv_text').value='';document.getElementById('file').value='';">清空</button>
+        </div>
+
+        <div id="status" class="status">准备就绪。</div>
+
+        <div class="result">
+            <div class="counts">
+                <div class="card"><div class="label">插入</div><div id="inserted" class="value">0</div></div>
+                <div class="card"><div class="label">更新</div><div id="updated" class="value">0</div></div>
+                <div class="card"><div class="label">成功</div><div id="success" class="value">0</div></div>
+                <div class="card"><div class="label">失败</div><div id="failed" class="value">0</div></div>
+            </div>
+
+            <div style="margin-top:12px;">
+                <div class="label">警告</div>
+                <ul id="warnings"></ul>
+            </div>
+
+            <div style="margin-top:12px;">
+                <div class="label">错误明细</div>
+                <table>
+                    <thead>
+                        <tr><th>行号</th><th>名称</th><th>错误原因</th></tr>
+                    </thead>
+                    <tbody id="errors_body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="top-nav.js"></script>
+<script>
+// 预填示例CSV
+document.getElementById('csv_text').value = `name,province,city,type,mood_slug,keywords,one_line,logo_url\n示例大学A,北京,北京,综合,rational_creator,工程|科技|创新,一所偏理工的综合大学,\n示例大学B,上海,上海,艺术,artistic_dreamer,艺术|设计|创意,艺术氛围浓厚的高校,`;
+</script>
+<div id="site-footer"></div>
+<script src="site-footer.js"></script>
+</html>

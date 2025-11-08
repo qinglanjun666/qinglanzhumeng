@@ -1,0 +1,8 @@
+[
+  { "id": 1, "tag_name": "研究导向", "description": "偏好科研氛围与学术深度的学习者" },
+  { "id": 2, "tag_name": "创新实践", "description": "注重动手能力与项目驱动的学习者" },
+  { "id": 3, "tag_name": "社交领导", "description": "具备组织协调与领导力倾向的学习者" },
+  { "id": 4, "tag_name": "艺术探索", "description": "偏好艺术设计与人文表达的学习者" },
+  { "id": 5, "tag_name": "务实应用", "description": "重视应用场景与行业落地的学习者" },
+  { "id": 6, "tag_name": "理性分析", "description": "擅长逻辑与数据分析的学习者" }
+]

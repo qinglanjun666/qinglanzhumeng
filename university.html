@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大学信息 - 绘斓</title>
+    <meta name="description" content="大学信息页模板，包含大学名、地区、层次、重点专业与性格标签。">
+    <meta name="keywords" content="大学, 地区, 层次, 重点专业, 性格标签, 绘斓">
+    <link rel="canonical" href="" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="大学信息 - 绘斓" />
+    <meta property="og:description" content="大学信息页模板，包含大学名、地区、层次、重点专业与性格标签。" />
+    <meta property="og:url" content="" />
+    <meta property="og:image" content="" />
+    <meta property="og:site_name" content="绘斓" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="大学信息 - 绘斓" />
+    <meta name="twitter:description" content="大学信息页模板，包含大学名、地区、层次、重点专业与性格标签。" />
+    <meta name="twitter:image" content="" />
+    <!-- 移除远程占位图预连接，使用本地占位图 -->
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f7f8fb; color: #333; margin: 0; }
+        .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+        .header { background: white; border-bottom: 1px solid #eee; }
+        .nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .logo { font-weight: bold; color: #333; text-decoration: none; }
+        .card { background: white; border: 1px solid #eee; border-radius: 12px; padding: 1.2rem; display: flex; gap: 1rem; align-items: center; }
+        .logo-img { width: 80px; height: 80px; border-radius: 10px; border: 1px solid #eee; object-fit: contain; background: #fafafa; }
+        .title { font-size: 1.4rem; font-weight: 600; }
+        .one { color: #666; margin-top: .3rem; }
+        .like { color: #ff6b6b; margin-top: .3rem; }
+        .back { display: inline-block; margin-top: 1rem; color: #667eea; text-decoration: none; }
+        .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .8rem; margin-top: .6rem; color: #555; font-size: .92rem; }
+        .badge { display: inline-block; padding: .2rem .5rem; border-radius: 6px; font-size: .85rem; background: #eef3ff; color: #334; border: 1px solid #dde3ff; }
+        .section { background: white; border: 1px solid #eee; border-radius: 12px; padding: 1rem; margin-top: 1rem; }
+        .section h3 { margin-bottom: .6rem; font-size: 1.1rem; }
+        .row { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
+        .btn { padding: .5rem .9rem; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+        .btn.primary { background: #667eea; color: #fff; border-color: #667eea; }
+        .hint { color: #2d8a48; font-size: .9rem; }
+        .error { color: #d63031; font-size: .9rem; }
+        .chart { display: grid; grid-template-columns: 1fr; gap: .6rem; }
+        .bar { display: grid; grid-template-columns: 160px 1fr 60px; align-items: center; gap: .6rem; }
+        .bar-label { font-size: .92rem; color: #333; }
+        .bar-track { height: 14px; background: #f1f5f9; border-radius: 8px; overflow: hidden; border: 1px solid #e5e9ef; }
+        .bar-fill { height: 100%; background: #667eea; }
+        .bar-value { font-size: .9rem; color: #444; text-align: right; }
+        /* chips & tags */
+        .chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+        /* 简约风标签：减小内边距，白底、浅边，弱化点缀色 */
+        .chip { display: inline-flex; align-items: center; gap: .28rem; padding: .25rem .55rem; border-radius: 999px; border: 1px solid #e6e8ef; background: #fff; font-size: .85rem; color: #555; }
+        .chip .dot { width: 6px; height: 6px; border-radius: 50%; background: #667eea; opacity: .8; }
+        .chip.interactive { background: #fff; border-color: #e3e6ef; }
+        .chip .like-btn { border: none; background: transparent; cursor: pointer; color: #ff6b6b; font-size: .95rem; line-height: 1; }
+        .chip .like-btn.active { color: #e03131; }
+        .chip .like-btn[disabled] { cursor: not-allowed; opacity: .6; }
+        .chip .count { color: #777; font-size: .8rem; }
+        .chip input[type=radio] { cursor: pointer; accent-color: #667eea; }
+        .tag-hint { color: #777; font-size: .85rem; margin-top: .4rem; }
+        .placeholder { color: #888; font-size: .9rem; }
+        /* 简介与入学方式样式 */
+        .intro-text { color: #555; font-size: .95rem; line-height: 1.7; }
+        .admissions-list { margin: 0; padding-left: 1.1rem; color: #444; line-height: 1.7; }
+        .admissions-list li { margin: .2rem 0; }
+        /* 分享弹窗样式 */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        .modal .box { background: #fff; border-radius: 12px; border: 1px solid #eee; padding: 1rem; width: min(680px, 92vw); }
+        .modal .box h3 { margin-top: 0; }
+        .modal .actions { display: flex; gap: .5rem; align-items: center; }
+        .modal .preview { display: grid; place-items: center; background: #f7f8fb; border: 1px dashed #e5e9ef; border-radius: 8px; padding: .8rem; }
+        .sr { font-size: .9rem; color: #666; }
+        @media (max-width: 640px) {
+            .card { flex-direction: column; align-items: flex-start; }
+            .bar { grid-template-columns: 120px 1fr 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="top-nav"></div>
+    <main class="container">
+        <div id="loading" style="text-align:center; padding:2rem; color:#666;">
+            正在加载大学详情...
+        </div>
+        <div id="error" style="display:none; background:#fdecec; color:#d63031; padding:1rem; border-radius:8px;"></div>
+        <div id="detail" style="display:none;"></div>
+    </main>
+
+    <script>
+        // 已删除或非高校内容的ID名单（可根据需要扩展）
+        const DELETED_UNIVERSITY_IDS = new Set([11, 12]);
+        const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+        const apiBase = base + '/api';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const id = getUniversityIdFromQuery();
+            if (!id) {
+                showError('无效的大学ID');
+                return;
+            }
+            if (DELETED_UNIVERSITY_IDS.has(id)) {
+                showDeletedPageNotice();
+                return;
+            }
+            loadDetail(id);
+        });
+
+        function getUniversityIdFromQuery() {
+            const params = new URLSearchParams(window.location.search);
+            const id = parseInt(params.get('id'), 10);
+            return Number.isFinite(id) && id > 0 ? id : null;
+        }
+
+        async function loadDetail(id) {
+            const loading = document.getElementById('loading');
+            const detail = document.getElementById('detail');
+            try {
+                const res = await fetch(`${apiBase}/universities/${id}`);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const u = await res.json();
+                loading.style.display = 'none';
+                detail.style.display = 'block';
+                detail.innerHTML = renderDetail(u);
+                window.__currentUniversity = u;
+                bindActions(u);
+                // 扩展加载：基础信息与性格标签
+                await Promise.all([
+                    loadBasicInfoByName(u.name),
+                    loadIntroByName(u.name),
+                    loadAdmissionsByName(u.name)
+                ]);
+                // 更新SEO
+                updateSEO(u);
+                // 初次注入结构化数据（仅使用基础字段，稍后由基础信息补全）
+                injectJSONLD(u, window.__currentBasic || null);
+            } catch (e) {
+                showError('加载失败：' + e.message);
+            }
+        }
+
+ function renderDetail(u) {
+ const logo = u.logo_url || generateLogoSvg(u.name, 80);
+            const likes = (typeof u.like_count === 'number') ? u.like_count : (u.like_count || 0);
+            const mood = u.mood_type || {};
+            const meta = `
+                <div class="meta">
+                    <div>省份：${u.province || '-'}</div>
+                    <div>城市：${u.city || '-'}</div>
+                    <div>类型：${u.type || '-'}</div>
+                    <div>关键词：${u.keywords || '-'}</div>
+                    <div>气质：<span class="badge" style="background:${mood.color || '#eef3ff'}33;border-color:${mood.color || '#dde3ff'}">${mood.name || '-'}</span></div>
+                </div>`;
+            return `
+                <div class="card">
+  <img class="logo-img" src="${logo}" alt="${u.name}" loading="lazy" width="80" height="80" />
+                    <div>
+                        <div class="title">${u.name}</div>
+                        <div class="one">${u.one_line || ''}</div>
+                        ${meta}
+                        <div class="row" style="margin-top:.6rem; display:flex; flex-wrap:wrap; gap:.6rem; align-items:center;">
+                            <button class="btn" id="likeBtn">想读</button>
+                            <span class="like" id="likeCount" style="min-width:4rem;">❤ ${likes}</span>
+                            <button class="btn" id="studyingBtn">在读</button>
+                            <span class="like" id="studyingCount" style="min-width:4rem;">📚 0</span>
+                            <span id="actionError" class="error" style="display:none;"></span>
+                            <span id="actionHint" class="hint" style="display:none;"></span>
+                        </div>
+                        <div class="row" style="margin-top:.4rem; display:flex; flex-wrap:wrap; gap:.5rem; align-items:center;">
+                            <button class="btn" id="shareCopy">复制卡片</button>
+                            <button class="btn" id="shareImage">生成分享图</button>
+                            <button class="btn" id="shareWeChat">微信分享</button>
+                            <button class="btn" id="shareRed">小红书分享</button>
+                        </div>
+                        <div class="sr" style="margin-top:.3rem; color:#666; font-size:.9rem;">
+                            生成的分享图适用于朋友圈/笔记，复制卡片为文本/HTML
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>基本资料</h3>
+                    <div class="meta" id="basicMeta">
+                        <div>地区：<span id="regionVal">-</span></div>
+                        <div>性质：<span id="natureVal">-</span></div>
+                        <div>层次：<span id="levelVal">-</span></div>
+                        <div>官网：<a id="officialSite" href="#" target="_blank" rel="noopener">-</a></div>
+                    </div>
+                    <div style="margin-top:.6rem;">
+                        <div style="font-weight:600; margin-bottom:.4rem;">重点专业</div>
+                        <div id="majorsList" class="chips"><span class="placeholder">加载中...</span></div>
+                    </div>
+                    <div style="margin-top:.8rem;">
+                        <div style="font-weight:600; margin-bottom:.3rem;">学校简介</div>
+                        <div id="introText" class="intro-text"><span class="placeholder">正在补充介绍...</span></div>
+                    </div>
+                </div>
+
+
+                <div class="section">
+                    <h3>入学方式</h3>
+                    <ul id="admissionsList" class="admissions-list"><li class="placeholder">正在加载...</li></ul>
+                    <div class="sr" style="margin-top:.4rem;">不同院校与省份政策可能不同，以官方招生简章为准</div>
+                </div>
+
+
+                
+
+                <a class="back" href="${base}/mood-map.html">返回大学图谱</a>
+        `;
+    }
+
+        // 已移除投票分布与前端投票交互
+
+        // 加载基础信息（universities_basic）
+        async function loadBasicInfoByName(name) {
+            const regionEl = document.getElementById('regionVal');
+            const natureEl = document.getElementById('natureVal');
+            const levelEl = document.getElementById('levelVal');
+            const siteEl = document.getElementById('officialSite');
+            const majorsEl = document.getElementById('majorsList');
+            try {
+                const res = await fetch(`${apiBase}/universities_basic?q=${encodeURIComponent(name)}`);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const json = await res.json();
+                const list = (json && json.success && json.data && Array.isArray(json.data.universities)) ? json.data.universities : [];
+                const item = list.find(i => i.name === name) || list[0] || null;
+                if (!item) {
+                    regionEl.textContent = '-';
+                    natureEl.textContent = '-';
+                    levelEl.textContent = '-';
+                    siteEl.textContent = '-';
+                    siteEl.setAttribute('href', '#');
+                    majorsEl.innerHTML = '<span class="placeholder">暂无数据</span>';
+                    window.__currentBasic = null;
+                    return;
+                }
+                regionEl.textContent = item.region || '-';
+                natureEl.textContent = item.nature || '-';
+                levelEl.textContent = item.level || '-';
+                // 尝试从本地映射获取官网
+                try {
+                    const sres = await fetch(`${base}/data/official_sites.json`);
+                    if (sres.ok) {
+                        const map = await sres.json();
+                        const site = (map && (map[name] || map[(name || '').trim()])) || '';
+                        if (site) {
+                            siteEl.textContent = site.replace(/^https?:\/\//, '');
+                            siteEl.setAttribute('href', site);
+                        } else {
+                            siteEl.textContent = '-';
+                            siteEl.setAttribute('href', '#');
+                        }
+                    } else {
+                        siteEl.textContent = '-';
+                        siteEl.setAttribute('href', '#');
+                    }
+                } catch { siteEl.textContent = '-'; siteEl.setAttribute('href', '#'); }
+                const majors = Array.isArray(item.key_majors) ? item.key_majors : [];
+                majorsEl.innerHTML = majors.length
+                    ? majors.map(m => `<span class="chip"><span class="dot"></span>${escapeHtml(m)}</span>`).join('')
+                    : '<span class="placeholder">暂无数据</span>';
+                window.__currentBasic = item;
+                // 结合基础信息再次更新JSON-LD
+                if (window.__currentUniversity) {
+                  injectJSONLD(window.__currentUniversity, window.__currentBasic);
+                }
+            } catch (e) {
+                majorsEl.innerHTML = '<span class="placeholder">加载失败</span>';
+            }
+        }
+
+        // 加载性格标签（university/{id}/tags）
+        async function loadUniversityTags(uniId) {
+            const el = document.getElementById('personalityTags');
+            try {
+                const res = await fetch(`${apiBase}/university/${uniId}/tags`);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const json = await res.json();
+                const tags = (json && json.success && json.data && Array.isArray(json.data.tags)) ? json.data.tags : [];
+                if (!tags.length) {
+                    el.innerHTML = '<span class="placeholder">暂无标签</span>';
+                    updateTagStats(uniId, []);
+                    return;
+                }
+                el.innerHTML = tags.map(t => {
+                    const liked = isTagLiked(uniId, t.id);
+                    const likeCount = typeof t.like_count === 'number' ? t.like_count : 0;
+                    return `
+                        <span class="chip interactive" data-tag-id="${t.id}">
+                            <span class="dot"></span>${escapeHtml(t.tag_name)}
+                            <button class="like-btn ${liked ? 'active' : ''}" title="点赞该标签" ${liked ? 'disabled' : ''}>❤</button>
+                            <span class="count" title="标签热度">${likeCount}</span>
+                        </span>
+                    `;
+                }).join('');
+
+                // 事件绑定
+                el.querySelectorAll('.chip.interactive .like-btn').forEach(btn => {
+                    btn.addEventListener('click', async (ev) => {
+                        const chip = ev.currentTarget.closest('.chip.interactive');
+                        const tagId = parseInt(chip.getAttribute('data-tag-id'), 10);
+                        // 若本地已标记点赞，则无需再次请求
+                        if (isTagLiked(uniId, tagId)) {
+                            showActionHint('已点赞');
+                            return;
+                        }
+                        ev.currentTarget.disabled = true;
+                        try {
+                            const clientId = getClientId();
+                            const resp = await fetchWithRetry(`${apiBase}/university/${uniId}/tags/${tagId}/like`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include',
+                                body: JSON.stringify({ client_id: clientId || undefined })
+                            }, 2, 400);
+                            if (resp && resp.client_id) setClientId(resp.client_id);
+                            // 幂等提示：如果已点赞过
+                            if (resp && resp.already_liked) showActionHint('已点赞');
+                            // 本地标记为已点赞（不支持取消）
+                            markTagLiked(uniId, tagId);
+                            // 重新加载以刷新热度与排序
+                            await loadUniversityTags(uniId);
+                        } catch (e) {
+                            showActionError('标签点赞失败：' + e.message);
+                        } finally {
+                            ev.currentTarget.disabled = false;
+                        }
+                    });
+                });
+
+                // 已移除“最符合”单选交互
+
+                updateTagStats(uniId, tags);
+            } catch (e) {
+                el.innerHTML = '<span class="placeholder">加载失败</span>';
+                updateTagStats(uniId, []);
+            }
+        }
+
+        // 加载学校简介（本地JSON，可扩展为后台字段）
+        async function loadIntroByName(name) {
+            const el = document.getElementById('introText');
+            try {
+                const res = await fetch(`${base}/data/university_intros.json`);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const map = await res.json();
+                const intro = map && (map[name] || map[(name || '').trim()]) || '';
+                const fallback = (window.__currentUniversity && window.__currentUniversity.one_line) || '';
+                const fullText = (intro || fallback || '').trim();
+                if (!fullText) {
+                    el.innerHTML = '<span class="placeholder">暂无介绍</span>';
+                    return;
+                }
+                const limit = 120; // 字符截断长度
+                const isLong = fullText.length > limit;
+                const shortText = isLong ? fullText.slice(0, limit) + '…' : fullText;
+                el.innerHTML = `
+                    <span class="intro-text" data-full="${escapeHtml(fullText)}" data-short="${escapeHtml(shortText)}">${escapeHtml(shortText)}</span>
+                    ${isLong ? '<button class="link-btn" id="introToggle">展开</button>' : ''}
+                `;
+                if (isLong) {
+                    const toggle = document.getElementById('introToggle');
+                    const span = el.querySelector('.intro-text');
+                    let expanded = false;
+                    toggle.addEventListener('click', () => {
+                        expanded = !expanded;
+                        span.textContent = expanded ? span.getAttribute('data-full') : span.getAttribute('data-short');
+                        toggle.textContent = expanded ? '收起' : '展开';
+                    });
+                }
+            } catch (e) {
+                el.innerHTML = '<span class="placeholder">暂无介绍</span>';
+            }
+        }
+
+        // 加载入学方式（本地JSON：通用 + 具体院校覆盖）
+        async function loadAdmissionsByName(name) {
+            const el = document.getElementById('admissionsList');
+            try {
+                const res = await fetch(`${base}/data/admissions_modes.json`);
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                const modes = (data && (data[name] || data['default'])) || [];
+                if (!Array.isArray(modes) || modes.length === 0) {
+                    el.innerHTML = '<li class="placeholder">暂无数据</li>';
+                    return;
+                }
+                el.innerHTML = modes.map(m => `<li>${escapeHtml(m)}</li>`).join('');
+            } catch (e) {
+                el.innerHTML = '<li class="placeholder">加载失败</li>';
+            }
+        }
+
+        function updateTagStats(uniId, tags) {
+            const statsEl = document.getElementById('tagStats');
+            const likedIds = getLikedTagIds(uniId);
+            const likeTotal = likedIds.length;
+            statsEl.textContent = `统计：本设备 — 已点赞 ${likeTotal}`;
+        }
+
+        // 匿名交互存储（localStorage）
+        function getLikedTagIds(uniId) {
+            try {
+                const raw = localStorage.getItem('hj_ut_likes:' + uniId);
+                const arr = raw ? JSON.parse(raw) : [];
+                return Array.isArray(arr) ? arr : [];
+            } catch { return []; }
+        }
+        function setLikedTagIds(uniId, arr) {
+            try { localStorage.setItem('hj_ut_likes:' + uniId, JSON.stringify(arr)); } catch {}
+        }
+        function isTagLiked(uniId, tagId) {
+            const arr = getLikedTagIds(uniId);
+            return arr.includes(tagId);
+        }
+        function markTagLiked(uniId, tagId) {
+            const arr = getLikedTagIds(uniId);
+            if (!arr.includes(tagId)) {
+                arr.push(tagId);
+                setLikedTagIds(uniId, arr);
+            }
+        }
+        // 已移除“最符合”记录逻辑
+
+        function escapeHtml(str) {
+            return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+        }
+
+        // 生成专属LOGO（SVG Data URI）
+        function generateLogoSvg(name, size = 80) {
+            const initial = (name || 'U').trim().charAt(0);
+            let hash = 0;
+            for (let i = 0; i < (name || '').length; i++) {
+                hash = ((hash << 5) - hash) + name.charCodeAt(i);
+                hash |= 0;
+            }
+            const hue = Math.abs(hash) % 360;
+            const bg = `hsl(${hue}, 70%, 55%)`;
+            const svg = `<?xml version='1.0' encoding='UTF-8'?>\n<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>\n  <rect width='${size}' height='${size}' rx='10' fill='${bg}'/>\n  <text x='50%' y='50%' font-size='${Math.round(size*0.55)}' text-anchor='middle' dominant-baseline='middle' fill='#ffffff' font-family='Segoe UI, Microsoft YaHei, Arial'>${initial}</text>\n</svg>`;
+            return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        // 更新SEO（Title/Description/Keywords/OG/Twitter/Canonical）
+        function updateSEO(u) {
+            const title = `${u.name} - 大学信息 | 绘斓`;
+            const desc = `${u.name} 的基本信息与气质标签，类型：${u.type || '-'}，省市：${u.province || '-'} ${u.city || '-'}`;
+            const url = window.location.origin + (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '') + `/university/${u.id}`;
+            const img = u.logo_url || 'https://via.placeholder.com/600x315?text=UNI';
+
+            document.title = title;
+            setMeta('description', desc);
+            setMeta('keywords', `${u.name},大学,地区,层次,重点专业,性格标签`);
+
+            setOG('og:title', title);
+            setOG('og:description', desc);
+            setOG('og:url', url);
+            setOG('og:image', img);
+            setOG('og:site_name', '绘斓');
+
+            setMeta('twitter:title', title);
+            setMeta('twitter:description', desc);
+            setMeta('twitter:image', img);
+
+            setCanonical(url);
+        }
+        function setMeta(name, content) {
+            let el = document.querySelector(`meta[name="${name}"]`);
+            if (!el) {
+                el = document.createElement('meta');
+                el.setAttribute('name', name);
+                document.head.appendChild(el);
+            }
+            el.setAttribute('content', content);
+        }
+        function setOG(property, content) {
+            let el = document.querySelector(`meta[property="${property}"]`);
+            if (!el) {
+                el = document.createElement('meta');
+                el.setAttribute('property', property);
+                document.head.appendChild(el);
+            }
+            el.setAttribute('content', content);
+        }
+        function setCanonical(url) {
+            let link = document.querySelector('link[rel="canonical"]');
+            if (!link) {
+                link = document.createElement('link');
+                link.setAttribute('rel', 'canonical');
+                document.head.appendChild(link);
+            }
+            link.setAttribute('href', url);
+        }
+
+        // 注入 Schema.org JSON-LD（CollegeOrUniversity 与 BreadcrumbList）
+        function injectJSONLD(u, basic) {
+            if (!u || !u.id) return;
+            const basePath = (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '');
+            const url = window.location.origin + basePath + `/university/${u.id}`;
+            const logo = u.logo_url || 'https://via.placeholder.com/600x315?text=UNI';
+            const region = basic && basic.region ? basic.region : (u.province || '');
+            const level = basic && basic.level ? basic.level : '';
+            const majors = (basic && Array.isArray(basic.key_majors)) ? basic.key_majors : [];
+            const nature = basic && basic.nature ? basic.nature : (u.type || '');
+
+            const college = {
+                '@context': 'https://schema.org',
+                '@type': 'CollegeOrUniversity',
+                'name': u.name,
+                'url': url,
+                'logo': logo,
+                'address': region ? { '@type': 'PostalAddress', 'addressRegion': region } : undefined,
+                'description': u.one_line || undefined,
+                'sameAs': [],
+                'founder': undefined,
+                'keywords': (u.keywords || '').split('|').filter(Boolean),
+                'additionalType': nature || undefined,
+                'educationalCredentialAwarded': level || undefined,
+                'department': majors.length ? majors.map(m => ({ '@type': 'EducationalOrganization', 'name': m })) : undefined
+            };
+
+            const breadcrumb = {
+                '@context': 'https://schema.org',
+                '@type': 'BreadcrumbList',
+                'itemListElement': [
+                    {
+                        '@type': 'ListItem',
+                        'position': 1,
+                        'name': '首页',
+                        'item': window.location.origin + basePath + '/index.html'
+                    },
+                    {
+                        '@type': 'ListItem',
+                        'position': 2,
+                        'name': '大学',
+                        'item': window.location.origin + basePath + '/search.html'
+                    },
+                    {
+                        '@type': 'ListItem',
+                        'position': 3,
+                        'name': u.name,
+                        'item': url
+                    }
+                ]
+            };
+
+            setJSONLD('ld-university', college);
+            setJSONLD('ld-breadcrumb', breadcrumb);
+        }
+
+        function setJSONLD(id, obj) {
+            if (!obj) return;
+            let el = document.getElementById(id);
+            if (!el) {
+                el = document.createElement('script');
+                el.type = 'application/ld+json';
+                el.id = id;
+                document.head.appendChild(el);
+            }
+            el.textContent = JSON.stringify(obj);
+        }
+
+        // 分享：复制卡片（文本+HTML）
+        function doCopyCard() {
+            const u = window.__currentUniversity || {};
+            const b = window.__currentBasic || {};
+            const mood = u.mood_type || {};
+            const majors = Array.isArray(b.key_majors) ? b.key_majors.join('、') : '-';
+            const url = window.location.origin + (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '') + `/university/${u.id}`;
+            const text = [
+                `${u.name}`,
+                `一句话：${u.one_line || '-'}`,
+                `地区：${b.region || u.province || '-'}  类型：${u.type || '-'}`,
+                `层次：${b.level || '-'}`,
+                `重点专业：${majors}`,
+                `气质：${mood.name || '-'}`,
+                `链接：${url}`
+            ].join('\n');
+
+            const html = `
+                <div class="card" style="font-family:Arial,sans-serif;max-width:560px;border:1px solid #eee;border-radius:12px;padding:12px;">
+                  <div style="display:flex;gap:10px;align-items:center;">
+                    <img src="${u.logo_url || (base + '/assets/placeholder.svg')}" alt="${escapeHtml(u.name)}" style="width:80px;height:80px;border-radius:10px;border:1px solid #eee;object-fit:contain;" />
+                    <div>
+                      <div style="font-size:18px;font-weight:600;">${escapeHtml(u.name)}</div>
+                      <div style="color:#666;margin-top:4px;">${escapeHtml(u.one_line || '')}</div>
+                    </div>
+                  </div>
+                  <div style="margin-top:8px;color:#555;font-size:14px;">
+                    地区：${escapeHtml(b.region || u.province || '-')}&nbsp;|&nbsp;类型：${escapeHtml(u.type || '-')}&nbsp;|&nbsp;层次：${escapeHtml(b.level || '-')}
+                  </div>
+                  <div style="margin-top:4px;color:#555;font-size:14px;">重点专业：${escapeHtml(majors)}</div>
+                  <div style="margin-top:4px;color:#555;font-size:14px;">气质：${escapeHtml(mood.name || '-')}</div>
+                  <a href="${url}" style="display:inline-block;margin-top:8px;color:#667eea;">查看详情</a>
+                </div>`;
+
+            if (navigator.clipboard && navigator.clipboard.write) {
+                const blobText = new Blob([text], { type: 'text/plain' });
+                const blobHtml = new Blob([html], { type: 'text/html' });
+                const data = [new ClipboardItem({ 'text/plain': blobText, 'text/html': blobHtml })];
+                navigator.clipboard.write(data).then(() => {
+                    alert('已复制卡片（文本与HTML）');
+                }).catch(() => {
+                    navigator.clipboard.writeText(text).then(() => alert('已复制卡片文本'));
+                });
+            } else {
+                navigator.clipboard?.writeText(text);
+                alert('已复制卡片文本');
+            }
+        }
+
+        // 分享：生成分享图（OG 1200x630）
+        function doGenerateShareImage() {
+            const u = window.__currentUniversity || {};
+            const b = window.__currentBasic || {};
+            const mood = u.mood_type || {};
+            const majors = Array.isArray(b.key_majors) ? b.key_majors.slice(0, 4).join('、') : '-';
+            const W = 1200, H = 630;
+            const canvas = document.createElement('canvas');
+            canvas.width = W; canvas.height = H;
+            const ctx = canvas.getContext('2d');
+
+            const grd = ctx.createLinearGradient(0,0,0,H);
+            grd.addColorStop(0, '#f9fbff');
+            grd.addColorStop(1, '#eef3ff');
+            ctx.fillStyle = grd;
+            ctx.fillRect(0,0,W,H);
+
+            ctx.fillStyle = '#222';
+            ctx.font = 'bold 48px Arial';
+            ctx.fillText(u.name || '大学', 40, 100);
+
+            ctx.font = '24px Arial';
+            ctx.fillStyle = '#444';
+            ctx.fillText((u.one_line || '').slice(0, 30), 40, 150);
+
+            ctx.font = '22px Arial';
+            ctx.fillText(`地区：${b.region || u.province || '-'}`, 40, 210);
+            ctx.fillText(`类型：${u.type || '-'}`, 40, 250);
+            ctx.fillText(`层次：${b.level || '-'}`, 40, 290);
+            ctx.fillText(`重点专业：${majors}`, 40, 330);
+            ctx.fillText(`气质：${mood.name || '-'}`, 40, 370);
+
+            const logo = new Image();
+            logo.crossOrigin = 'anonymous';
+            logo.onload = () => {
+                ctx.drawImage(logo, W-200, 60, 140, 140);
+                finalize();
+            };
+            logo.onerror = finalize;
+            logo.src = u.logo_url || generateLogoSvg(u.name, 140);
+
+            function finalize() {
+                ctx.font = '18px Arial';
+                ctx.fillStyle = '#667eea';
+                ctx.fillText('绘斓 Huilan', 40, H-40);
+                const url = canvas.toDataURL('image/png');
+                showShareModal({ title: '分享图已生成', imgUrl: url });
+            }
+        }
+
+        // 分享：微信（二维码+提示）
+        function doWeChatShare() {
+            const u = window.__currentUniversity || {};
+            const url = window.location.origin + (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '') + `/university/${u.id}`;
+            const qr = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(url)}`;
+            showShareModal({ title: '微信分享', html: `<div class=\"preview\"><img src=\"${qr}\" alt=\"二维码\" width=\"240\" height=\"240\" /></div><div class=\"sr\">使用微信扫一扫打开页面，然后点击右上角分享</div>` });
+        }
+
+        // 分享：小红书（分享文案与图片）
+        function doRedShare() {
+            const u = window.__currentUniversity || {};
+            const b = window.__currentBasic || {};
+            const mood = u.mood_type || {};
+            const majors = Array.isArray(b.key_majors) ? b.key_majors.slice(0, 4).join('、') : '-';
+            const text = `#大学推荐 #高校信息\n${u.name}\n地区：${b.region || u.province || '-'} 类型：${u.type || '-'} 层次：${b.level || '-'}\n重点专业：${majors}\n气质：${mood.name || '-'}`;
+            if (navigator.clipboard?.writeText) navigator.clipboard.writeText(text);
+            doGenerateShareImage();
+            alert('已复制分享文案，可在小红书粘贴；已生成分享图可下载');
+        }
+
+        // 通用分享弹窗
+        function showShareModal(opts) {
+            let modal = document.getElementById('shareModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'shareModal';
+                modal.className = 'modal';
+                modal.innerHTML = `<div class=\"box\"><h3 id=\"shareTitle\"></h3><div id=\"shareBody\"></div><div class=\"actions\" style=\"margin-top:.6rem;\"><button class=\"btn\" id=\"shareClose\">关闭</button><a class=\"btn primary\" id=\"shareDownload\" href=\"#\" download=\"share.png\" style=\"display:none;\">下载分享图</a></div></div>`;
+                document.body.appendChild(modal);
+                modal.addEventListener('click', (e) => { if (e.target === modal) hideShareModal(); });
+                document.getElementById('shareClose').addEventListener('click', hideShareModal);
+            }
+            document.getElementById('shareTitle').textContent = opts.title || '分享';
+            const body = document.getElementById('shareBody');
+            if (opts.imgUrl) {
+                body.innerHTML = `<div class=\"preview\"><img src=\"${opts.imgUrl}\" alt=\"分享图\" style=\"max-width:100%;height:auto;border-radius:8px;\" /></div>`;
+                const dl = document.getElementById('shareDownload');
+                dl.style.display = 'inline-block';
+                dl.setAttribute('href', opts.imgUrl);
+            } else if (opts.html) {
+                body.innerHTML = opts.html;
+                document.getElementById('shareDownload').style.display = 'none';
+            } else {
+                body.textContent = '就绪';
+                document.getElementById('shareDownload').style.display = 'none';
+            }
+            modal.style.display = 'flex';
+        }
+        function hideShareModal() {
+            const modal = document.getElementById('shareModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function bindActions(u) {
+            const likeBtn = document.getElementById('likeBtn');
+            const studyingBtn = document.getElementById('studyingBtn');
+            const actionError = document.getElementById('actionError');
+            const actionHint = document.getElementById('actionHint');
+            window.__currentUniversity = u;
+
+            likeBtn.addEventListener('click', async () => {
+                actionError.style.display = 'none';
+                actionHint.style.display = 'none';
+                try {
+                    likeBtn.disabled = true;
+                    const clientId = getClientId();
+                    const json = await fetchWithRetry(`${apiBase}/universities/${u.id}/like`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ client_id: clientId || undefined })
+                    }, 2, 400);
+                    if (json.client_id) setClientId(json.client_id);
+                    document.getElementById('likeCount').textContent = '❤ ' + (json.like_count ?? (u.like_count || 0));
+                    if (json.already_liked) {
+                        actionHint.textContent = '已想读';
+                        actionHint.style.display = 'inline';
+                        setTimeout(() => actionHint.style.display = 'none', 1500);
+                    }
+                } catch (e) {
+                    actionError.textContent = '想读失败：' + e.message;
+                    actionError.style.display = 'inline';
+                } finally {
+                    likeBtn.disabled = false;
+                }
+            });
+
+            // 在读：后端持久化 + 统计
+            const updateStudyingUI = (count, isStudying) => {
+                document.getElementById('studyingCount').textContent = '📚 ' + (count ?? 0);
+                studyingBtn.classList.toggle('primary', !!isStudying);
+                studyingBtn.textContent = isStudying ? '在读中' : '在读';
+            };
+
+            // 初次拉取在读统计与状态
+            (async () => {
+                try {
+                    const stats = await fetchWithRetry(`${apiBase}/universities/${u.id}/studying`, { credentials: 'include' }, 1, 300);
+                    if (stats && stats.success && stats.data) {
+                        updateStudyingUI(stats.data.studying_count, stats.data.is_studying);
+                    }
+                } catch { /* 静默失败：保持默认显示 */ }
+            })();
+
+            studyingBtn.addEventListener('click', async () => {
+                actionError.style.display = 'none';
+                actionHint.style.display = 'none';
+                try {
+                    studyingBtn.disabled = true;
+                    const currentIsStudying = studyingBtn.classList.contains('primary');
+                    const next = !currentIsStudying;
+                    const clientId = getClientId();
+                    const json = await fetchWithRetry(`${apiBase}/universities/${u.id}/studying`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ client_id: clientId || undefined, studying: next })
+                    }, 2, 400);
+                    if (json.client_id) setClientId(json.client_id);
+                    updateStudyingUI(json.studying_count, json.is_studying);
+                    actionHint.textContent = next ? '已标记为在读' : '已取消在读';
+                    actionHint.style.display = 'inline';
+                    setTimeout(() => actionHint.style.display = 'none', 1500);
+                } catch (e) {
+                    actionError.textContent = '在读标记失败：' + e.message;
+                    actionError.style.display = 'inline';
+                } finally {
+                    studyingBtn.disabled = false;
+                }
+            });
+
+            // 已移除投票交互（moodSelect 与投票分布更新）
+
+            // 分享按钮绑定
+            document.getElementById('shareCopy').addEventListener('click', () => doCopyCard());
+            document.getElementById('shareImage').addEventListener('click', () => doGenerateShareImage());
+            document.getElementById('shareWeChat').addEventListener('click', () => doWeChatShare());
+            document.getElementById('shareRed').addEventListener('click', () => doRedShare());
+        }
+
+        function slugToName(slug) {
+            const map = {
+                rational_creator: '理性创造型',
+                artistic_explorer: '文艺探索型',
+                social_connector: '社交领导型',
+                practical_achiever: '务实应用型'
+            };
+            return map[slug] || slug;
+        }
+
+        function getClientId() {
+            const m = document.cookie.match(/(?:^|;\s*)hj_client_id=([^;]+)/);
+            return m ? decodeURIComponent(m[1]) : null;
+        }
+        function setClientId(id) {
+            const maxAge = 30 * 24 * 60 * 60; // 30天
+            document.cookie = `hj_client_id=${encodeURIComponent(id)}; path=/; max-age=${maxAge}`;
+        }
+
+        // 通用网络重试工具
+        async function fetchWithRetry(url, options = {}, retries = 2, backoffMs = 300) {
+            let lastErr;
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (!res.ok) throw new Error('HTTP ' + res.status);
+                    return await res.json();
+                } catch (e) {
+                    lastErr = e;
+                    if (attempt < retries) {
+                        await new Promise(r => setTimeout(r, backoffMs));
+                        continue;
+                    }
+                    throw lastErr;
+                }
+            }
+        }
+
+        // 统一短提示与错误提示（复用现有 actionHint/actionError）
+        function showActionHint(msg) {
+            const el = document.getElementById('actionHint');
+            if (!el) return;
+            el.textContent = msg;
+            el.style.display = 'inline';
+            setTimeout(() => el.style.display = 'none', 1500);
+        }
+        function showActionError(msg) {
+            const el = document.getElementById('actionError');
+            if (!el) return;
+            el.textContent = msg;
+            el.style.display = 'inline';
+        }
+
+        function showError(msg) {
+            document.getElementById('loading').style.display = 'none';
+            const error = document.getElementById('error');
+            error.style.display = 'block';
+            error.textContent = msg;
+        }
+
+        // 当请求的ID属于“已删除/非高校内容”时，显示提示并提供返回入口
+        function showDeletedPageNotice() {
+            const loading = document.getElementById('loading');
+            const detail = document.getElementById('detail');
+            const error = document.getElementById('error');
+            loading.style.display = 'none';
+            detail.style.display = 'none';
+            error.style.display = 'block';
+            error.innerHTML = '该页面已删除：不是学校的内容。<br/><a class="back" href="' + base + '/search.html">返回搜索</a> 或 <a class="back" href="' + base + '/mood-map.html">返回大学图谱</a>';
+        }
+    </script>
+    <div id="site-footer"></div>
+    <script src="site-footer.js"></script>
+    <script src="top-nav.js"></script>
+</body>
+</html>

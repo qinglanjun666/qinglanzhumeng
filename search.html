@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>大学搜索与筛选 - 绘斓</title>
+  <meta name="description" content="支持关键词搜索、地区/学科/类型筛选的大学列表，快速响应、动态渲染。">
+  <meta name="keywords" content="大学搜索, 地区筛选, 学科筛选, 类型筛选, 绘斓">
+  <link rel="canonical" href="" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="大学搜索与筛选 - 绘斓" />
+  <meta property="og:description" content="支持关键词搜索、地区/学科/类型筛选的大学列表，快速响应、动态渲染。" />
+  <meta property="og:url" content="" />
+  <meta property="og:image" content="assets/placeholder.svg" />
+  <meta property="og:site_name" content="绘斓" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="大学搜索与筛选 - 绘斓" />
+  <meta name="twitter:description" content="支持关键词搜索、地区/学科/类型筛选的大学列表，快速响应、动态渲染。" />
+  <meta name="twitter:image" content="assets/placeholder.svg" />
+  <!-- 本地占位图，移除远程站点预连接 -->
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Microsoft YaHei', Arial, sans-serif; color:#333; margin:0; background:#f7f8fb; }
+    .container { max-width: 1080px; margin: 0 auto; padding: 20px; }
+    .header { background: white; border-bottom: 1px solid #eee; }
+    .nav { display:flex; justify-content:space-between; align-items:center; padding: 1rem 0; }
+    .logo { font-weight:bold; color:#333; text-decoration:none; }
+
+    .panel { background:white; border:1px solid #eee; border-radius:12px; padding:1rem; margin-top:1rem; }
+    .grid { display:grid; grid-template-columns: repeat(12, 1fr); gap: .8rem; }
+    .field { display:flex; flex-direction:column; gap:.4rem; }
+    .field label { font-size:.9rem; color:#555; }
+    .input, select { border:1px solid #e5e9ef; border-radius:8px; padding:.6rem .7rem; background:#fff; }
+    .actions { display:flex; gap:.6rem; align-items:center; flex-wrap:wrap; }
+    .btn { padding:.6rem .9rem; border-radius:8px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+    .btn.primary { background:#667eea; color:#fff; border-color:#667eea; }
+    .hint { font-size:.9rem; color:#777; }
+    .result { margin-top:1rem; }
+    .cards { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .9rem; }
+    .card { background:white; border:1px solid #eee; border-radius:12px; padding: .9rem; display:flex; gap:.8rem; align-items:center; }
+    .logo-img { width:56px; height:56px; border-radius:8px; border:1px solid #eee; object-fit:contain; background:#fafafa; }
+    .title { font-weight:600; }
+    .meta { font-size:.88rem; color:#666; }
+    .badge { display:inline-block; padding:.2rem .5rem; border-radius:6px; font-size:.8rem; background:#eef3ff; color:#334; border:1px solid #dde3ff; }
+    .empty { text-align:center; color:#777; padding:1.2rem; }
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: repeat(6, 1fr); }
+      .card { align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div id="top-nav"></div>
+  <main class="container">
+    <div class="panel">
+      <div class="grid">
+        <div class="field" style="grid-column: span 6;">
+          <label for="kw">关键词（名称/简介/关键词/重点专业）</label>
+          <input id="kw" class="input" type="text" placeholder="例如：计算机 / 清华 / 工程" />
+        </div>
+        <div class="field" style="grid-column: span 3;">
+          <label for="region">地区</label>
+          <select id="region">
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column: span 3;">
+          <label for="type">类型</label>
+          <select id="type">
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="field" style="grid-column: span 6;">
+          <label for="subject">学科（按重点专业匹配）</label>
+          <input id="subject" class="input" type="text" placeholder="例如：软件工程 / 金融 / 医学" />
+        </div>
+        <div class="field" style="grid-column: span 6;">
+          <label>&nbsp;</label>
+          <div class="actions">
+            <button id="btnSearch" class="btn primary">搜索</button>
+            <button id="btnReset" class="btn">重置</button>
+            <span id="resultHint" class="hint">准备就绪</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result panel">
+      <div id="loading" class="hint">正在加载数据...</div>
+      <div id="error" class="empty" style="display:none; color:#d63031;">加载失败</div>
+      <div id="list" class="cards" style="display:none;"></div>
+      <div id="empty" class="empty" style="display:none;">未找到匹配的大学</div>
+    </div>
+  </main>
+
+  <script>
+    const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+    const apiBase = base + '/api';
+
+    const state = {
+      rawUniversities: [], // /api/universities（基础详情）
+      basicMap: new Map(), // name -> { region, nature, level, key_majors }
+      regions: new Set(),
+      types: new Set()
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initData();
+      initUI();
+      doSearch();
+    });
+
+    async function initData() {
+      const loading = document.getElementById('loading');
+      try {
+        loading.textContent = '正在加载基础数据...';
+        // 拉取较多的大学记录，后端分页限制为默认20；这里尝试扩大到100
+        const uniRes = await fetch(`${apiBase}/universities?page=1&per_page=100`);
+        if (!uniRes.ok) throw new Error('HTTP ' + uniRes.status);
+        const uniJson = await uniRes.json();
+        state.rawUniversities = Array.isArray(uniJson.data) ? uniJson.data : (Array.isArray(uniJson) ? uniJson : []);
+
+        loading.textContent = '正在加载基础信息（地区/学科/层次）...';
+        const basicRes = await fetch(`${apiBase}/universities_basic?page=1&per_page=200`);
+        if (!basicRes.ok) throw new Error('HTTP ' + basicRes.status);
+        const basicJson = await basicRes.json();
+        const list = (basicJson && basicJson.success && basicJson.data && Array.isArray(basicJson.data.universities)) ? basicJson.data.universities : [];
+        for (const item of list) {
+          state.basicMap.set(item.name, item);
+          if (item.region) state.regions.add(item.region);
+        }
+
+        // 统计类型集合（来源 /api/universities 的 u.type）
+        for (const u of state.rawUniversities) {
+          if (u.type) state.types.add(u.type);
+        }
+
+        // 渲染筛选下拉
+        const regionSel = document.getElementById('region');
+        const typeSel = document.getElementById('type');
+        regionSel.innerHTML = '<option value="">全部</option>' + Array.from(state.regions).map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+        typeSel.innerHTML = '<option value="">全部</option>' + Array.from(state.types).map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join('');
+
+      } catch (e) {
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = '加载失败：' + e.message;
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    function initUI() {
+      document.getElementById('btnSearch').addEventListener('click', doSearch);
+      document.getElementById('btnReset').addEventListener('click', () => {
+        document.getElementById('kw').value = '';
+        document.getElementById('region').value = '';
+        document.getElementById('type').value = '';
+        document.getElementById('subject').value = '';
+        doSearch();
+      });
+
+      // 回车触发搜索
+      document.getElementById('kw').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+      document.getElementById('subject').addEventListener('keydown', (e) => { if (e.key === 'Enter') doSearch(); });
+    }
+
+    function doSearch() {
+      const kw = document.getElementById('kw').value.trim();
+      const region = document.getElementById('region').value.trim();
+      const type = document.getElementById('type').value.trim();
+      const subject = document.getElementById('subject').value.trim();
+      const hint = document.getElementById('resultHint');
+
+      hint.textContent = '搜索中...';
+
+      // 基础集：若包含关键词，优先调用后端 /api/universities?q=kw
+      // 否则使用已缓存的 state.rawUniversities
+      const sourcePromise = kw
+        ? fetch(`${apiBase}/universities?page=1&per_page=100&q=${encodeURIComponent(kw)}`)
+            .then(r => r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status)))
+            .then(j => Array.isArray(j.data) ? j.data : (Array.isArray(j) ? j : []))
+        : Promise.resolve(state.rawUniversities);
+
+      sourcePromise
+        .then(list => {
+          let filtered = list.slice();
+
+          // 类型筛选（来自 /api/universities 的 u.type）
+          if (type) {
+            filtered = filtered.filter(u => (u.type || '').includes(type));
+          }
+
+          // 地区/学科筛选（来自 universities_basic 的 region/key_majors）
+          if (region || subject) {
+            filtered = filtered.filter(u => {
+              const basic = state.basicMap.get(u.name);
+              if (!basic) return false; // 若无基础信息，无法匹配地区/学科
+              const okRegion = region ? (basic.region === region) : true;
+              const okSubject = subject
+                ? (Array.isArray(basic.key_majors) && basic.key_majors.some(m => String(m).includes(subject)))
+                : true;
+              return okRegion && okSubject;
+            });
+          }
+
+          renderList(filtered);
+          hint.textContent = `已更新，共 ${filtered.length} 所大学`;
+        })
+        .catch(err => {
+          hint.textContent = '搜索失败：' + err.message;
+        });
+    }
+
+    function renderList(list) {
+      const grid = document.getElementById('list');
+      const empty = document.getElementById('empty');
+      if (!list || list.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+      grid.innerHTML = list.map(u => {
+        const basic = state.basicMap.get(u.name);
+        const region = basic ? basic.region : '-';
+        const level = basic ? basic.level : '-';
+        const majors = basic && Array.isArray(basic.key_majors) ? basic.key_majors.slice(0, 3).join('、') : '-';
+        const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+        const logo = u.logo_url || generateLogoSvg(u.name, 56);
+        return `
+          <div class="card" onclick="navigateTo(${u.id})" title="查看详情">
+            <img class="logo-img" src="${logo}" alt="${escapeHtml(u.name)}" loading="lazy" width="56" height="56" />
+            <div>
+              <div class="title">${escapeHtml(u.name)}</div>
+              <div class="meta">地区：${escapeHtml(region)} | 类型：${escapeHtml(u.type || '-')}</div>
+              <div class="meta">层次：${escapeHtml(level)} | 重点专业：${escapeHtml(majors)}</div>
+              <div class="meta">❤ ${u.like_count || 0} | 投票数 ${u.poll_counts || 0}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function navigateTo(id) {
+      const DELETED_UNIVERSITY_IDS = new Set([11, 12]);
+      if (DELETED_UNIVERSITY_IDS.has(id)) {
+        alert('该页面已删除：不是学校的内容');
+        return;
+      }
+      window.location.href = `${base}/university.html?id=${id}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
+    }
+    // 生成专属LOGO（SVG Data URI）
+    function generateLogoSvg(name, size = 56) {
+      const initial = (name || 'U').trim().charAt(0);
+      let hash = 0;
+      for (let i = 0; i < (name || '').length; i++) {
+        hash = ((hash << 5) - hash) + name.charCodeAt(i);
+        hash |= 0;
+      }
+      const hue = Math.abs(hash) % 360;
+      const bg = `hsl(${hue}, 70%, 55%)`;
+      const svg = `<?xml version='1.0' encoding='UTF-8'?>\n<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>\n  <rect width='${size}' height='${size}' rx='10' fill='${bg}'/>\n  <text x='50%' y='50%' font-size='${Math.round(size*0.55)}' text-anchor='middle' dominant-baseline='middle' fill='#ffffff' font-family='Segoe UI, Microsoft YaHei, Arial'>${initial}</text>\n</svg>`;
+      return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    }
+  </script>
+  <script>
+    // 设置 canonical 与 OG URL
+    (function() {
+      const base = window.location.origin + (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '');
+      const url = base + '/search.html';
+      const set = (sel, attr) => {
+        const el = document.querySelector(sel);
+        if (el) el.setAttribute(attr, url);
+      };
+      set('link[rel="canonical"]','href');
+      set('meta[property="og:url"]','content');
+    })();
+  </script>
+  <div id="site-footer"></div>
+  <script src="site-footer.js"></script>
+  <script src="top-nav.js"></script>
+</body>
+</html>

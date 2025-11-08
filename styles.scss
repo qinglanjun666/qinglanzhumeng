@@ -1,0 +1,134 @@
+// 绘斓统一视觉样式（SCSS源）
+// 主题：白底 + 浅蓝/青绿渐变；字体：思源黑体中文 + Inter英文；两栏响应式
+
+// 本地托管字体（优先）
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Inter Regular'), local('Inter-Regular'),
+       url('fonts/Inter-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: local('Inter SemiBold'), local('Inter-SemiBold'),
+       url('fonts/Inter-SemiBold.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Inter Bold'), local('Inter-Bold'),
+       url('fonts/Inter-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Noto Sans SC Regular'), local('NotoSansSC-Regular'),
+       url('fonts/NotoSansSC-Regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: local('Noto Sans SC Medium'), local('NotoSansSC-Medium'),
+       url('fonts/NotoSansSC-Medium.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: local('Noto Sans SC Bold'), local('NotoSansSC-Bold'),
+       url('fonts/NotoSansSC-Bold.woff2') format('woff2');
+}
+
+// 远程字体作为回退（可移除以完全离线）
+@supports not (font-variation-settings: normal) {
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+}
+
+:root {
+  --brand-blue: #4f79ff;
+  --brand-indigo: #667eea;
+  --brand-teal: #2dc5a1;
+  --text-strong: #222;
+  --text-body: #333;
+  --text-muted: #666;
+  --border: #e6e8ef;
+  --bg-soft: #f7f8fb;
+  --bg-card: #ffffff;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 8px 24px rgba(102,126,234,.12);
+  --gradient-1: linear-gradient(180deg, #f9fbff 0%, #eef3ff 50%, #e6f7f6 100%);
+}
+
+html, body {
+  font-family: 'Noto Sans SC', 'Inter', 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', Arial, sans-serif !important;
+  background: var(--bg-soft);
+  color: var(--text-body);
+}
+
+// 容器与基础块
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: var(--shadow-sm);
+}
+.section h2 { margin: 0 0 .6rem; font-size: 1.3rem; }
+.section h3 { margin: .8rem 0 .4rem; font-size: 1.05rem; }
+
+// 两栏响应式布局
+.layout-2col {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 2fr);
+  gap: 1rem;
+}
+@media (max-width: 820px) {
+  .layout-2col { grid-template-columns: 1fr; }
+}
+
+// 组件与UI元素
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; display: flex; gap: 1rem; align-items: center; }
+.row { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
+.btn { padding: .5rem .9rem; border-radius: 8px; border: 1px solid #ddd; background: #fff; cursor: pointer; }
+.btn.primary { background: var(--brand-indigo); color: #fff; border-color: var(--brand-indigo); }
+.btn.ghost { background: transparent; border-color: var(--border); color: var(--text-body); }
+.badge { display: inline-block; padding: .2rem .5rem; border-radius: 6px; font-size: .85rem; background: #eef3ff; color: #334; border: 1px solid #dde3ff; }
+.hint { color: #2d8a48; font-size: .9rem; }
+.error { color: #d63031; font-size: .9rem; }
+.chips { display: flex; gap: .5rem; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: .3rem; padding: .3rem .6rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-soft); font-size: .85rem; color: #555; }
+.chip .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-indigo); opacity: .8; }
+.chip .like-btn { border: none; background: transparent; cursor: pointer; color: #ff6b6b; font-size: .95rem; }
+.chip .count { color: #777; font-size: .8rem; }
+.placeholder { color: #888; font-size: .9rem; }
+
+// 渐变背景工具
+.bg-gradient { background: var(--gradient-1); }
+.bg-white { background: #fff; }
+.text-muted { color: var(--text-muted); }
+
+// 导航（与 top-nav.js 风格一致）
+.hj-top-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: #fff; border-bottom: 1px solid #eee; }
+.hj-top-nav .wrap { max-width: 1200px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; }
+.hj-top-nav .brand { font-weight: 700; color: #333; text-decoration: none; font-size: 1.1rem; }
+.hj-top-nav .links { display: flex; gap: 16px; }
+.hj-top-nav a { color: #333; text-decoration: none; font-weight: 500; }
+.hj-top-nav a.active { color: #4f46e5; }
+@media (max-width: 768px) { .hj-top-nav .links { gap: 12px; } }
+body.hj-has-top-nav { padding-top: 56px; }

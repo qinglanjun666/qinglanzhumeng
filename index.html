@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>绘斓网 - 发现你的大学气质</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 160px 0 120px;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+            /* 更醒目的多层渐变背景（深色基底 + 彩色光斑） */
+            background: 
+              radial-gradient(900px 520px at -10% 15%, rgba(102,126,234,0.35) 0%, rgba(102,126,234,0) 60%),
+              radial-gradient(820px 520px at 110% 20%, rgba(255,138,91,0.30) 0%, rgba(255,138,91,0) 60%),
+              radial-gradient(700px 500px at 30% 120%, rgba(45,197,161,0.30) 0%, rgba(45,197,161,0) 60%),
+              linear-gradient(135deg, #171b34 0%, #2a2253 100%);
+            background-repeat: no-repeat;
+        }
+
+        /* 顶部柔光提升空间层次 */
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(1200px 600px at 50% -10%, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* 让内容位于背景之上 */
+        .hero .container { position: relative; z-index: 1; }
+
+        .hero h1 {
+            font-size: 3.8rem;
+            font-weight: 700;
+            letter-spacing: .02em;
+            margin-bottom: 1rem;
+            text-shadow: 0 8px 30px rgba(0,0,0,.35);
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.2s forwards;
+        }
+
+        .hero .subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 1.6rem;
+            color: rgba(255,255,255,.9);
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.4s forwards;
+        }
+
+        .hero .description {
+            font-size: 1.1rem;
+            margin-bottom: 2.2rem;
+            color: rgba(255,255,255,.85);
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.6s forwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: .02em;
+            transition: all 0.3s ease;
+            box-shadow: 0 12px 32px rgba(255, 107, 107, 0.35);
+            opacity: 0;
+            animation: fadeInUp 1s ease 0.8s forwards;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(255, 107, 107, 0.4);
+        }
+
+        /* Mood Types Section */
+        .mood-types {
+            padding: 80px 0;
+            background: rgba(255, 255, 255, 0.95);
+            margin-top: 50px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 4rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .mood-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mood-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--card-color, #667eea);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .mood-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .mood-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .mood-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .mood-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .mood-desc {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .mood-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--card-color, #667eea);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #999;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 2rem 0;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.6rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .mood-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .mood-card {
+                padding: 1.5rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-links {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .hero {
+                padding: 120px 0 80px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .cta-button {
+                padding: 15px 30px;
+                font-size: 1.1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Mood Type Colors */
+        .mood-card[data-mood="1"] {
+            --card-color: #667eea;
+        }
+
+        .mood-card[data-mood="2"] {
+            --card-color: #f093fb;
+        }
+
+        .mood-card[data-mood="3"] {
+            --card-color: #4facfe;
+        }
+
+        .mood-card[data-mood="4"] {
+            --card-color: #43e97b;
+        }
+
+        /* Error State */
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            color: #e74c3c;
+            background: #fdf2f2;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 0 20px;
+        }
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .search-bar input {
+            flex: 1;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #e5e7eb;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .search-bar input:focus { border-color: #667eea; }
+        .search-btn {
+            padding: 12px 18px;
+            background: #667eea;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        .search-suggestions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        .search-suggestions .tag {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .search-results {
+            max-width: 900px;
+            margin: 18px auto 0;
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            min-height: 48px;
+        }
+
+        /* Recommendations */
+        .recommendations { background: rgba(255, 255, 255, 0.95); padding: 40px 0; }
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .rec-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .rec-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+        .rec-logo { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; }
+        .rec-name { font-weight: 600; color: #111827; }
+        .rec-one { font-size: 0.95rem; color: #6b7280; }
+</style>
+</head>
+<body>
+    <!-- 统一顶部导航占位（由 top-nav.js 动态注入） -->
+    <div id="top-nav"></div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>发现你的大学气质</h1>
+            <p class="subtitle">科学测评 · 精准匹配 · 个性推荐</p>
+            <p class="description">
+                通过专业的气质测评，为你推荐最适合的大学类型。
+                每个人都有独特的学习风格和兴趣偏好，让我们帮你找到最匹配的教育环境。
+            </p>
+            <a href="#" class="cta-button" id="startQuizBtn">开始测评</a>
+        </div>
+    </section>
+
+    <!-- Search Section 已移除 -->
+
+    <!-- Mood Types Section -->
+    <section class="mood-types">
+        <div class="container">
+            <h2 class="section-title">气质类型</h2>
+            <p class="section-subtitle">
+                每种气质类型都有其独特的特征和适合的大学环境，点击了解更多详情
+            </p>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="loading">
+                <div class="spinner"></div>
+                <p>正在加载气质类型数据...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-message" style="display: none;">
+                <p>加载失败，请刷新页面重试</p>
+            </div>
+
+            <!-- Mood Cards Grid -->
+            <div class="mood-grid" id="moodGrid" style="display: none;">
+                <!-- 气质卡片将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendations Section -->
+    <section class="recommendations">
+        <div class="container">
+            <h2 class="section-title">今日推荐</h2>
+            <p class="section-subtitle">每日精选 6 所院校，供你快速了解</p>
+            <div id="recLoading" class="loading">
+                <div class="spinner"></div>
+                <p>正在加载推荐数据...</p>
+            </div>
+            <div id="recError" class="error-message" style="display:none;"></div>
+            <div id="recGrid" class="rec-grid" style="display:none;"></div>
+        </div>
+    </section>
+
+    <!-- 统一站点底部占位（由 site-footer.js 注入） -->
+    <div id="site-footer"></div>
+
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initializePage();
+        });
+
+        // 初始化页面
+        function initializePage() {
+            setupEventListeners();
+            loadMoodTypes();
+            loadRecommendations();
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 开始测评按钮
+            const startQuizBtn = document.getElementById('startQuizBtn');
+            startQuizBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                navigateToQuiz();
+            });
+
+            // 平滑滚动
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        }
+
+        // 跳转到测评页面
+        function navigateToQuiz() {
+            // 检查测评页面是否存在
+            if (window.location.pathname.includes('huilanweb')) {
+                window.location.href = '/huilanweb/assessment.html';
+            } else {
+                window.location.href = '/assessment.html';
+            }
+        }
+
+        // 搜索模块已移除
+
+        // 推荐模块：占位数据与可选API加载
+        async function loadRecommendations() {
+            const loading = document.getElementById('recLoading');
+            const error = document.getElementById('recError');
+            const grid = document.getElementById('recGrid');
+
+            const baseApi = window.location.pathname.includes('huilanweb') ? '/huilanweb/api' : '/api';
+            const fallback = [
+                { id: 101, name: '清华大学', one_line: '工程与计算机强势（占位）', logo_url: '' },
+                { id: 102, name: '北京大学', one_line: '综合实力卓越（占位）', logo_url: '' },
+                { id: 103, name: '浙江大学', one_line: '创新与研究氛围浓厚（占位）', logo_url: '' },
+                { id: 104, name: '上海交通大学', one_line: '理工科优势明显（占位）', logo_url: '' },
+                { id: 105, name: '中国科学技术大学', one_line: '科研导向（占位）', logo_url: '' },
+                { id: 106, name: '南京大学', one_line: '学术基础雄厚（占位）', logo_url: '' }
+            ];
+
+            try {
+                let universities = fallback;
+                try {
+                    const resp = await fetch(`${baseApi}/universities?random=1&limit=6`);
+                    if (resp.ok) {
+                        const data = await resp.json();
+                        // 适配API：当返回结构为 { data: [...] }
+                        if (data && Array.isArray(data.data)) {
+                            universities = data.data;
+                        }
+                    }
+                } catch (e) {
+                    // 使用占位数据
+                }
+
+                // 如果API不可用或数据为空，回退到每日稳定随机
+                if (!Array.isArray(universities) || universities.length === 0) {
+                    universities = pickDailyRandom(fallback, 6);
+                }
+                renderRecommendations(universities);
+                loading.style.display = 'none';
+                grid.style.display = 'grid';
+            } catch (e) {
+                loading.style.display = 'none';
+                error.style.display = 'block';
+                error.textContent = '加载失败：' + (e.message || '未知错误');
+            }
+        }
+
+        function renderRecommendations(list) {
+            const grid = document.getElementById('recGrid');
+            const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+            grid.innerHTML = list.map(u => `
+                <div class="rec-card" onclick="navigateToUniversity(${u.id})">
+                    <img class="rec-logo" src="${u.logo_url || generateLogoSvg(u.name, 56)}" alt="${u.name}" />
+                    <div>
+                        <div class="rec-name">${u.name}</div>
+                        <div class="rec-one">${u.one_line || '个性化推荐占位'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function navigateToUniversity(id) {
+            const DELETED_UNIVERSITY_IDS = new Set([11, 12]);
+            const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+            if (DELETED_UNIVERSITY_IDS.has(id)) {
+                alert('该页面已删除：不是学校的内容');
+                return;
+            }
+            window.location.href = `${base}/university.html?id=${id}`;
+        }
+        // 生成专属LOGO（SVG Data URI）
+        function generateLogoSvg(name, size = 56) {
+            const initial = (name || 'U').trim().charAt(0);
+            let hash = 0;
+            for (let i = 0; i < (name || '').length; i++) {
+                hash = ((hash << 5) - hash) + name.charCodeAt(i);
+                hash |= 0;
+            }
+            const hue = Math.abs(hash) % 360;
+            const bg = `hsl(${hue}, 70%, 55%)`;
+            const svg = `<?xml version='1.0' encoding='UTF-8'?>\n<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'>\n  <rect width='${size}' height='${size}' rx='10' fill='${bg}'/>\n  <text x='50%' y='50%' font-size='${Math.round(size*0.55)}' text-anchor='middle' dominant-baseline='middle' fill='#ffffff' font-family='Segoe UI, Microsoft YaHei, Arial'>${initial}</text>\n</svg>`;
+            return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+        }
+
+        function dailySeed() {
+            const d = new Date();
+            return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+        }
+        function mulberry32(a){
+            return function() {
+                let t = a += 0x6D2B79F5;
+                t = Math.imul(t ^ t >>> 15, t | 1);
+                t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            }
+        }
+        function pickDailyRandom(list, n) {
+            const rng = mulberry32(dailySeed());
+            const arr = [...list];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(rng() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr.slice(0, n);
+        }
+        // 加载气质类型数据
+        async function loadMoodTypes() {
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const moodGrid = document.getElementById('moodGrid');
+
+            try {
+                // 构建API URL
+                const baseUrl = window.location.pathname.includes('huilanweb') 
+                    ? '/huilanweb/api' 
+                    : '/api';
+                
+                const response = await fetch(`${baseUrl}/mood_types`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.mood_types) {
+                    renderMoodTypes(data.data.mood_types);
+                    
+                    // 显示内容，隐藏加载状态
+                    loadingState.style.display = 'none';
+                    moodGrid.style.display = 'grid';
+                } else {
+                    throw new Error(data.message || '数据格式错误');
+                }
+            } catch (error) {
+                console.error('加载气质类型失败:', error);
+                
+                // 显示错误状态
+                loadingState.style.display = 'none';
+                errorState.style.display = 'block';
+                errorState.innerHTML = `
+                    <p>加载失败: ${error.message}</p>
+                    <button onclick="loadMoodTypes()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">重试</button>
+                `;
+            }
+        }
+
+        // 渲染气质类型卡片
+        function renderMoodTypes(moodTypes) {
+            const moodGrid = document.getElementById('moodGrid');
+            
+            // 气质类型图标映射
+            const moodIcons = {
+                1: '🧠', // 理性创造型
+                2: '🎨', // 文艺探索型  
+                3: '⚡', // 务实应用型
+                4: '👥'  // 社交领导型
+            };
+
+            moodGrid.innerHTML = moodTypes.map(mood => `
+                <div class="mood-card" data-mood="${mood.id}" onclick="navigateToMoodDetail('${mood.slug}')">
+                    <span class="mood-icon">${moodIcons[mood.id] || '🎯'}</span>
+                    <h3 class="mood-name">${mood.name}</h3>
+                    <p class="mood-desc">${mood.short_desc}</p>
+                    <div class="mood-stats">
+                        <div class="stat">
+                            <div class="stat-number">${mood.university_count || 0}</div>
+                            <div class="stat-label">匹配大学</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">${mood.user_count || 0}</div>
+                            <div class="stat-label">用户选择</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // 添加卡片动画
+            const cards = document.querySelectorAll('.mood-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        }
+
+        // 跳转到气质详情页面
+        function navigateToMoodDetail(moodSlug) {
+            // 这里可以跳转到气质详情页面或显示详情模态框
+            const baseUrl = window.location.pathname.includes('huilanweb') 
+                ? '/huilanweb' 
+                : '';
+            
+            // 跳转到单独的气质大学列表页
+            window.location.href = `${baseUrl}/mood-list.html?slug=${encodeURIComponent(moodSlug)}`;
+        }
+
+        // 错误处理
+        window.addEventListener('error', function(e) {
+            console.error('页面错误:', e.error);
+        });
+
+        // 页面可见性变化处理
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // 页面重新可见时，可以刷新数据
+                console.log('页面重新可见');
+            }
+        });
+    </script>
+    <!-- 统一顶部导航脚本 -->
+    <script src="top-nav.js"></script>
+    <script src="site-footer.js"></script>
+</body>
+</html>

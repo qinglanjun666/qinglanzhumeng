@@ -1,0 +1,67 @@
+# 启用URL重写引擎
+RewriteEngine On
+
+# 设置基础路径
+RewriteBase /huilanweb/
+
+# 如果请求的是实际存在的文件或目录，则不重写
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# API路由规则
+RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+# 前端详情页路由：/university/{id} 映射到 university.html?id={id}
+# 特例：ID=11 为非高校内容，直接重定向到搜索页（仅Apache环境生效）
+RewriteRule ^university/11$ search.html [R=302,L]
+# 特例：ID=12 为非高校内容，直接重定向到搜索页（仅Apache环境生效）
+RewriteRule ^university/12$ search.html [R=302,L]
+RewriteRule ^university/([0-9]+)$ university.html?id=$1 [QSA,L]
+
+# 网站地图：/sitemap.xml => sitemap.php 动态生成
+RewriteRule ^sitemap\.xml$ sitemap.php [QSA,L]
+
+# 法律与隐私页面友好路由
+RewriteRule ^legal/privacy$ privacy.html [QSA,L]
+RewriteRule ^legal/terms$ terms.html [QSA,L]
+RewriteRule ^legal/disclaimer$ disclaimer.html [QSA,L]
+
+# 防止直接访问PHP文件
+<FilesMatch "^(database|config)\.php$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# 设置默认字符集
+AddDefaultCharset UTF-8
+
+# 安全响应头与CORS（生产环境建议收紧来源）
+<IfModule mod_headers.c>
+    # CORS：开发阶段允许全部；生产建议改为具体域名
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, X-Admin-Password, X-Admin-Key"
+    Header set Access-Control-Allow-Credentials "true"
+
+    # 安全响应头
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set X-XSS-Protection "1; mode=block"
+    # 仅HTTPS生效（HTTP忽略），浏览器会忽略HTTP场景
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+    # 基础CSP（允许同源与必要的内联、字体与图片数据）
+    Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' https: data:; connect-src 'self'"
+</IfModule>
+
+# 禁止目录列表
+Options -Indexes
+
+# 非本地环境强制HTTPS（避免影响本地预览）
+<IfModule mod_rewrite.c>
+RewriteCond %{HTTP_HOST} !^127\.0\.0\.1$
+RewriteCond %{HTTP_HOST} !^localhost$
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>

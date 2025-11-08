@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>埋点事件导出（管理员）</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+        body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Microsoft YaHei", sans-serif; margin: 0; background: #f7f7fb; color: #222; }
+        .container { max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); padding: 28px; }
+        h1 { margin: 0 0 8px; font-size: 24px; }
+        .desc { color: #666; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        label { font-weight: 600; color: #333; }
+        input[type="password"], select, input[type="date"], input[type="number"] { padding: 10px 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+        .actions { display: flex; gap: 12px; margin-top: 18px; }
+        button { padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+        .primary { background: #4f46e5; color: #fff; }
+        .secondary { background: #e5e7eb; color: #111827; }
+        .status { margin-top: 16px; font-size: 14px; color: #555; }
+        .hint { font-size: 12px; color: #666; }
+    </style>
+    <script>
+        function buildExportUrl() {
+            const origin = window.location.origin;
+            const API_BASE = origin.includes(':8080') ? '' : '/huilanweb';
+            const password = document.getElementById('password').value.trim();
+            const eventType = document.getElementById('event_type').value.trim();
+            const from = document.getElementById('from').value.trim();
+            const to = document.getElementById('to').value.trim();
+            const limit = document.getElementById('limit').value.trim();
+            const params = new URLSearchParams();
+            if (password) params.set('password', password);
+            if (eventType) params.set('event_type', eventType);
+            if (from) params.set('from', from);
+            if (to) params.set('to', to);
+            if (limit) params.set('limit', limit);
+            return `${API_BASE}/api/admin/analytics/export?${params.toString()}`;
+        }
+
+        async function exportCSV() {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = '正在导出…';
+            const url = buildExportUrl();
+            try {
+                const res = await fetch(url, {
+                    method: 'GET',
+                });
+                const ct = res.headers.get('Content-Type') || '';
+                if (!res.ok || !ct.includes('text/csv')) {
+                    const data = await res.json().catch(() => ({}));
+                    statusEl.innerHTML = `<span style="color:#b91c1c;">导出失败：</span> ${data.error || data.message || 'Unknown error'}`;
+                    return;
+                }
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                const urlObj = URL.createObjectURL(blob);
+                a.href = urlObj;
+                const now = new Date();
+                a.download = `analytics_events_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(urlObj);
+                statusEl.innerHTML = '<span style="color:#166534;">导出成功，文件已下载。</span>';
+            } catch (e) {
+                statusEl.innerHTML = `<span style="color:#b91c1c;">网络或服务器错误：</span> ${e.message}`;
+            }
+        }
+    </script>
+    </head>
+<body>
+    <div id="top-nav"></div>
+    <div class="container">
+        <h1>埋点事件导出（管理员）</h1>
+        <div class="desc">可按事件类型与时间范围导出。事件类型包含：<code>quiz_completed</code>、<code>university_view</code>、<code>like</code>、<code>vote</code>、<code>share_image</code>（如有）。</div>
+
+        <div class="grid">
+            <div class="field">
+                <label for="password">管理员密码</label>
+                <input id="password" type="password" placeholder="默认 zxasqw123456，可用 HJ_ADMIN_PASSWORD 覆盖" />
+            </div>
+            <div class="field">
+                <label for="event_type">事件类型</label>
+                <select id="event_type">
+                    <option value="">全部</option>
+                    <option value="quiz_completed">quiz_completed</option>
+                    <option value="university_view">university_view</option>
+                    <option value="like">like</option>
+                    <option value="vote">vote</option>
+                    <option value="share_image">share_image</option>
+                </select>
+                <div class="hint">留空则导出全部类型。</div>
+            </div>
+            <div class="field">
+                <label for="limit">最大条数</label>
+                <input id="limit" type="number" min="1" max="100000" value="1000" />
+                <div class="hint">默认1000，最多100000。</div>
+            </div>
+        </div>
+
+        <div class="grid" style="margin-top:12px; grid-template-columns: 1fr 1fr;">
+            <div class="field">
+                <label for="from">开始日期</label>
+                <input id="from" type="date" />
+            </div>
+            <div class="field">
+                <label for="to">结束日期</label>
+                <input id="to" type="date" />
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="primary" onclick="exportCSV()">导出CSV</button>
+            <button class="secondary" onclick="document.getElementById('from').value='';document.getElementById('to').value='';document.getElementById('event_type').value='';document.getElementById('limit').value='1000';">清空</button>
+        </div>
+
+        <div id="status" class="status">准备就绪。</div>
+    </div>
+    <div id="site-footer"></div>
+    <script src="site-footer.js"></script>
+</body>
+<script src="top-nav.js"></script>
+</html>
