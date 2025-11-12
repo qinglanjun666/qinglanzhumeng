@@ -33,7 +33,7 @@ const style = `
         <div class="legal">
           使用本网站即表示您同意《使用条款》与《隐私政策》。本网站内容仅供参考，不构成法律、学术或招生建议；因使用产生的风险由您自行承担。更多细则与责任限制，请参见《免责声明》。
         </div>
-        <div class="meta">© 2024 绘斓网</div>
+        <div class="meta">© 2024 青蓝君</div>
       </div>`;
     return f;
   }

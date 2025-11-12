@@ -28,6 +28,7 @@
 | /api/mood_types | GET | 获取气质类型列表 |
 | /api/assessment/questions | GET | 获取测评题目与选项 |
 | /api/assessment/submit | POST | 提交测评答案，返回气质类型与推荐大学 |
+| /api/mbti_recommend | GET | 根据MBTI类型返回匹配高校列表 |
 | /api/admin/import/universities | POST | 管理端导入/更新大学数据（CSV，支持 tags 列） |
 | /api/admin/import/questions | POST | 管理端导入/更新测评题库（JSON） |
 | /api/admin/analytics/export | GET | 管理端导出埋点事件（CSV） |
@@ -171,6 +172,37 @@
 }
 ```
 
+### 2.8 获取MBTI题库
+- GET `/api/mbti_questions`
+- 功能：返回20道、四维度均衡（E/I、N/S、T/F、J/P）的MBTI题库，每题两个选项，对应维度字母。
+- 响应示例：
+```json
+{
+  "success": true,
+  "message": "MBTI题库获取成功",
+  "data": {
+    "questions": [
+      { "id": 1, "question": "你更喜欢哪种聚会？", "options": [ { "text": "热闹的大型聚会", "value": "E" }, { "text": "小圈子的深度交流", "value": "I" } ] },
+      { "id": 2, "question": "遇到新环境，你通常？", "options": [ { "text": "主动结识新朋友", "value": "E" }, { "text": "观察一阵再行动", "value": "I" } ] }
+      // ... 共20题
+    ],
+    "statistics": {
+      "total_questions": 20,
+      "dimension_counts": { "E": 5, "I": 5, "N": 5, "S": 5, "T": 5, "F": 5, "J": 5, "P": 5 }
+    }
+  }
+}
+```
+- 兼容性：接口优先读取 `data/mbti_questions.json`，文件缺失或解析失败时自动回退到内置备份题库。
+- 前端用法：
+```js
+fetch('/api/mbti_questions')
+  .then(r => r.json())
+  .then(({ data }) => {
+    const questions = data.questions; // 直接渲染
+  });
+```
+
 ### 2.8 管理端导入大学数据
 - POST /api/admin/import/universities
 - 参数：CSV文件，password（表单或Header）
@@ -199,6 +231,48 @@
 ---
 
 ## 3. 错误码表
+### 2.10 根据MBTI类型推荐高校
+- GET `/api/mbti_recommend?mbti=INTJ`
+- 功能：根据用户提供的MBTI类型（如 `INTJ`, `ENFP`）返回匹配高校列表，包含气质描述与插画占位。
+- 参数：
+  - `mbti`（必填，字符串，正则 `^[EI][NS][TF][JP]$`）
+- 数据源与策略：
+  - 优先查询数据库表 `university_mbti_tags`（字段：`university`, `mbti_type`, `mbti_desc`）。
+  - 数据库不可用或查询失败时，自动回退到 `data/universities_mbti.json`。
+- 响应示例：
+```json
+{
+  "success": true,
+  "mbti": "INTJ",
+  "count": 2,
+  "data": [
+    {
+      "university": "清华大学",
+      "mbti_type": "INTJ",
+      "mbti_desc": "战略型，理性、目标导向、创新力强",
+      "illustration": "/assets/placeholder.svg",
+      "match_type": "primary",
+      "source": "db"
+    },
+    {
+      "university": "上海财经大学",
+      "mbti_type": "INTJ",
+      "mbti_desc": "战略型，理性、财经思维突出",
+      "illustration": "/assets/placeholder.svg",
+      "match_type": "primary",
+      "source": "file"
+    }
+  ]
+}
+```
+- 错误示例：
+```json
+{ "success": false, "message": "请提供有效的MBTI类型（如INTJ、ENFP）", "data": [] }
+```
+- 说明：
+- `illustration` 当前返回通用占位图 `/assets/placeholder.svg`；后续可扩展每种MBTI的专属插画。
+- `match_type` 用于标识匹配类型（当前为主匹配 `primary`）。
+- `source` 指示数据来源：`db` 或 `file`。
 
 | HTTP状态码 | 错误码/字段 | 含义 |
 |------------|------------|------|

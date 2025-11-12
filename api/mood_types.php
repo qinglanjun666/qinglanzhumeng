@@ -114,16 +114,85 @@ try {
     ), JSON_UNESCAPED_UNICODE);
     
 } catch (Exception $e) {
-    // 错误处理
-    http_response_code(500);
+    // 错误处理：提供降级数据，避免前端不可用
+    error_log("Mood Types API Error: " . $e->getMessage());
+
+    // 尝试读取本地降级数据 data/mood_types.json
+    $fallback_list = null;
+    $json_path = __DIR__ . '/../data/mood_types.json';
+    if (file_exists($json_path)) {
+        $raw = file_get_contents($json_path);
+        $decoded = json_decode($raw, true);
+        if (is_array($decoded)) {
+            // 兼容两种结构：直接数组或 { mood_types: [] }
+            if (isset($decoded['mood_types']) && is_array($decoded['mood_types'])) {
+                $fallback_list = $decoded['mood_types'];
+            } else {
+                $fallback_list = $decoded;
+            }
+        }
+    }
+
+    if (!$fallback_list) {
+        // 内置四种气质类型的示例数据（与文档一致的slug）
+        $fallback_list = array(
+            array(
+                "id" => 1,
+                "slug" => "rational_creator",
+                "name" => "理性创造型",
+                "short_desc" => "逻辑思维强，善于创新",
+                "color" => "#3B82F6",
+                "university_count" => 0,
+                "user_count" => 0,
+                "created_at" => date('Y-m-d H:i:s')
+            ),
+            array(
+                "id" => 2,
+                "slug" => "artistic_explorer",
+                "name" => "文艺探索型",
+                "short_desc" => "审美与表达并重，善于探索",
+                "color" => "#EF4444",
+                "university_count" => 0,
+                "user_count" => 0,
+                "created_at" => date('Y-m-d H:i:s')
+            ),
+            array(
+                "id" => 3,
+                "slug" => "practical_achiever",
+                "name" => "务实应用型",
+                "short_desc" => "动手能力强，面向应用",
+                "color" => "#10B981",
+                "university_count" => 0,
+                "user_count" => 0,
+                "created_at" => date('Y-m-d H:i:s')
+            ),
+            array(
+                "id" => 4,
+                "slug" => "social_connector",
+                "name" => "社交领导型",
+                "short_desc" => "善于沟通组织，凝聚团队",
+                "color" => "#F59E0B",
+                "university_count" => 0,
+                "user_count" => 0,
+                "created_at" => date('Y-m-d H:i:s')
+            )
+        );
+    }
+
+    // 返回降级成功响应
+    http_response_code(200);
     echo json_encode(array(
-        "success" => false,
-        "message" => "服务器内部错误: " . $e->getMessage(),
-        "error_code" => "MOOD_TYPES_ERROR",
+        "success" => true,
+        "message" => "返回示例数据（数据库暂不可用）",
+        "data" => array(
+            "mood_types" => $fallback_list,
+            "statistics" => array(
+                "total_mood_types" => count($fallback_list),
+                "total_users" => 0,
+                "total_universities" => 0
+            )
+        ),
         "timestamp" => date('Y-m-d H:i:s')
     ), JSON_UNESCAPED_UNICODE);
-    
-    // 记录错误日志
-    error_log("Mood Types API Error: " . $e->getMessage());
 }
 ?>

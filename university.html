@@ -129,6 +129,7 @@
                     loadIntroByName(u.name),
                     loadAdmissionsByName(u.name)
                 ]);
+                await loadMbtiByName(u.name, u.mood_type || null);
                 // 更新SEO
                 updateSEO(u);
                 // 初次注入结构化数据（仅使用基础字段，稍后由基础信息补全）
@@ -195,6 +196,21 @@
                     </div>
                 </div>
 
+                <div class="section">
+                    <h3>MBTI 画像</h3>
+                    <div class="meta">
+                        <div>类型：<span id="mbtiTypeVal">-</span></div>
+                        <div>气质：<span id="mbtiTemperVal">-</span></div>
+                    </div>
+                    <div style="margin-top:.6rem; display:grid; grid-template-columns: 140px 1fr; gap:.8rem; align-items:center;">
+                        <img id="mbtiIllustration" src="${base}/assets/placeholder.svg" alt="MBTI插画" style="width:120px;height:120px;object-fit:contain;border-radius:.6rem;background:#f7f7f7;border:1px solid #eee" />
+                        <div>
+                            <div style="font-weight:600; margin-bottom:.3rem;">气质故事</div>
+                            <div id="mbtiStory" class="intro-text"><span class="placeholder">正在补充故事...</span></div>
+                        </div>
+                    </div>
+                    <div class="sr" style="margin-top:.4rem;">MBTI标签与故事基于公开资料与校园印象，供参考</div>
+                </div>
 
                 <div class="section">
                     <h3>入学方式</h3>
@@ -204,6 +220,12 @@
 
 
                 
+                <div class="section" id="seoContent">
+                    <h3>学校关键词与常见问答</h3>
+                    <div id="seoKeywords" class="intro-text"><span class="placeholder">正在优化关键词...</span></div>
+                    <div id="seoLinks" class="intro-text" style="margin-top:.4rem;"><span class="placeholder">正在生成相关链接...</span></div>
+                    <div id="seoFaq" class="intro-text" style="margin-top:.6rem;"><span class="placeholder">正在生成常见问题...</span></div>
+                </div>
 
                 <a class="back" href="${base}/mood-map.html">返回大学图谱</a>
         `;
@@ -244,7 +266,7 @@
                         const map = await sres.json();
                         const site = (map && (map[name] || map[(name || '').trim()])) || '';
                         if (site) {
-                            siteEl.textContent = site.replace(/^https?:\/\//, '');
+                            siteEl.textContent = stripProtocol(site);
                             siteEl.setAttribute('href', site);
                         } else {
                             siteEl.textContent = '-';
@@ -263,6 +285,9 @@
                 // 结合基础信息再次更新JSON-LD
                 if (window.__currentUniversity) {
                   injectJSONLD(window.__currentUniversity, window.__currentBasic);
+                  // 基础信息就绪后刷新SEO
+                  updateSEO(window.__currentUniversity);
+                  updateSEOContent();
                 }
             } catch (e) {
                 majorsEl.innerHTML = '<span class="placeholder">加载失败</span>';
@@ -391,6 +416,48 @@
             }
         }
 
+        // 加载 MBTI 画像（类型、气质故事、插画）。优先使用本地JSON映射，缺失则占位
+        async function loadMbtiByName(name, moodType) {
+            const typeEl = document.getElementById('mbtiTypeVal');
+            const temperEl = document.getElementById('mbtiTemperVal');
+            const storyEl = document.getElementById('mbtiStory');
+            const illuEl = document.getElementById('mbtiIllustration');
+            try {
+                if (moodType && moodType.name) {
+                    temperEl.textContent = moodType.name;
+                }
+                const tryLoad = async (path) => {
+                    try {
+                        const res = await fetch(path);
+                        if (!res.ok) return null;
+                        const arr = await res.json();
+                        if (!Array.isArray(arr)) return null;
+                        return arr.find(x => x && (x.university === name || (x.university || '').trim() === (name || '').trim())) || null;
+                    } catch { return null; }
+                };
+                let meta = await tryLoad(`${base}/data/universities_mbti.json`);
+                if (!meta) meta = await tryLoad(`${base}/data/universities_mbti_100.json`);
+                if (meta) {
+                    typeEl.textContent = meta.mbti_type || '-';
+                    storyEl.textContent = meta.mbti_desc || '暂无故事描述';
+                    illuEl.src = `${base}/assets/placeholder.svg`;
+                    // MBTI就绪后刷新SEO与FAQ结构化数据
+                    if (window.__currentUniversity) {
+                        updateSEO(window.__currentUniversity);
+                        injectFAQJSONLD(window.__currentUniversity, window.__currentBasic || null);
+                        updateSEOContent();
+                    }
+                } else {
+                    typeEl.textContent = '-';
+                    storyEl.innerHTML = '<span class="placeholder">暂无对应MBTI标签</span>';
+                    illuEl.src = `${base}/assets/placeholder.svg`;
+                }
+            } catch {
+                storyEl.innerHTML = '<span class="placeholder">加载失败</span>';
+                illuEl.src = `${base}/assets/placeholder.svg`;
+            }
+        }
+
         function updateTagStats(uniId, tags) {
             const statsEl = document.getElementById('tagStats');
             const likedIds = getLikedTagIds(uniId);
@@ -425,6 +492,13 @@
         function escapeHtml(str) {
             return String(str || '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[s]));
         }
+        // 安全移除 URL 协议前缀，避免使用正则导致的解析问题
+        function stripProtocol(url) {
+            const s = String(url || '');
+            if (s.startsWith('https://')) return s.slice(8);
+            if (s.startsWith('http://')) return s.slice(7);
+            return s;
+        }
 
         // 生成专属LOGO（SVG Data URI）
         function generateLogoSvg(name, size = 80) {
@@ -442,21 +516,53 @@
 
         // 更新SEO（Title/Description/Keywords/OG/Twitter/Canonical）
         function updateSEO(u) {
-            const title = `${u.name} - 大学信息 | 绘斓`;
-            const desc = `${u.name} 的基本信息与气质标签，类型：${u.type || '-'}，省市：${u.province || '-'} ${u.city || '-'}`;
-            const url = window.location.origin + (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '') + `/university/${u.id}`;
-            const img = u.logo_url || 'https://via.placeholder.com/600x315?text=UNI';
+            const basePath = (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '');
+            const url = window.location.origin + basePath + `/university/${u.id}`;
+            const basic = window.__currentBasic || {};
+            const mbtiType = (document.getElementById('mbtiTypeVal')?.textContent || '').trim();
+            const moodName = (u.mood_type && u.mood_type.name) ? u.mood_type.name : '';
+            const majors = Array.isArray(basic.key_majors) ? basic.key_majors : [];
+
+            const title = `${u.name} ${basic.level ? `(${basic.level})` : ''} - 大学信息 | 绘斓`.trim();
+            const descParts = [
+                u.one_line || `${u.name} 基本信息`,
+                `地区：${basic.region || u.province || '-'}`,
+                `性质：${basic.nature || u.type || '-'}`,
+                `层次：${basic.level || '-'}`,
+                `重点专业：${majors.slice(0, 4).join('、') || '-'}`,
+                moodName ? `气质：${moodName}` : '',
+                mbtiType ? `MBTI：${mbtiType}` : ''
+            ].filter(Boolean);
+            const desc = descParts.join('；');
+
+            const img = u.logo_url || generateLogoSvg(u.name, 630);
 
             document.title = title;
             setMeta('description', desc);
-            setMeta('keywords', `${u.name},大学,地区,层次,重点专业,性格标签`);
+            // 关键词组合：去重并限制长度
+            const kwSet = new Set([
+                u.name,
+                '大学', '院校',
+                basic.region || u.province || '',
+                u.city || '',
+                basic.nature || u.type || '',
+                basic.level || '',
+                ...((u.keywords || '').split('|').filter(Boolean)),
+                ...majors.slice(0, 6),
+                moodName || '',
+                mbtiType || ''
+            ].filter(Boolean).map(s => (s || '').trim()));
+            const keywords = Array.from(kwSet).slice(0, 12).join(',');
+            setMeta('keywords', keywords);
 
+            setOG('og:type', 'article');
             setOG('og:title', title);
             setOG('og:description', desc);
             setOG('og:url', url);
             setOG('og:image', img);
             setOG('og:site_name', '绘斓');
 
+            setMeta('twitter:card', 'summary_large_image');
             setMeta('twitter:title', title);
             setMeta('twitter:description', desc);
             setMeta('twitter:image', img);
@@ -545,6 +651,8 @@
 
             setJSONLD('ld-university', college);
             setJSONLD('ld-breadcrumb', breadcrumb);
+            // FAQ结构化数据
+            injectFAQJSONLD(u, basic);
         }
 
         function setJSONLD(id, obj) {
@@ -557,6 +665,107 @@
                 document.head.appendChild(el);
             }
             el.textContent = JSON.stringify(obj);
+        }
+
+        // FAQPage JSON-LD
+        function injectFAQJSONLD(u, basic) {
+            const site = document.getElementById('officialSite')?.getAttribute('href') || '';
+            const majors = (basic && Array.isArray(basic.key_majors)) ? basic.key_majors : [];
+            const mbtiType = (document.getElementById('mbtiTypeVal')?.textContent || '').trim();
+            const moodName = (u.mood_type && u.mood_type.name) ? u.mood_type.name : '';
+            const faq = {
+                '@context': 'https://schema.org',
+                '@type': 'FAQPage',
+                'mainEntity': [
+                    {
+                        '@type': 'Question',
+                        'name': `${u.name}有哪些重点专业？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': majors.length ? majors.join('、') : '暂无重点专业信息' }
+                    },
+                    {
+                        '@type': 'Question',
+                        'name': `${u.name}适合什么样的性格或MBTI类型？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': [moodName ? `气质：${moodName}` : '', mbtiType ? `MBTI：${mbtiType}` : ''].filter(Boolean).join('；') || '暂无画像信息' }
+                    },
+                    {
+                        '@type': 'Question',
+                        'name': `${u.name}属于什么层次及办学性质？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': `层次：${basic?.level || '-'}；性质：${basic?.nature || u.type || '-'}` }
+                    },
+                    {
+                        '@type': 'Question',
+                        'name': `如何查看${u.name}的官网？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': site ? `官网地址：${site}` : '暂无官网地址' }
+                    },
+                    {
+                        '@type': 'Question',
+                        'name': `${u.name}近年录取分数线如何？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': '分省分批次差异较大，请以省级招考信息与学校招生简章为准。' }
+                    },
+                    {
+                        '@type': 'Question',
+                        'name': `${u.name}住宿条件怎么样？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': '宿舍条件以学校后勤与学院安排为准，建议查看官网的新生指南或后勤公告。' }
+                    },
+                    {
+                        '@type': 'Question',
+                        'name': `${u.name}奖学金设置有哪些？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': '通常设有国家/校级/学院奖助学金，具体标准与申请条件以学校官网发布为准。' }
+                    },
+                    {
+                        '@type': 'Question',
+                        'name': `${u.name}是否有国际合作与交流项目？`,
+                        'acceptedAnswer': { '@type': 'Answer', 'text': '多数高校与境内外高校/企业设有合作交流项目，请查询国际合作与交流办公室或学院通知。' }
+                    }
+                ]
+            };
+            setJSONLD('ld-faq', faq);
+        }
+
+        // 关键词段与FAQ可读内容（内容埋词）
+        function updateSEOContent() {
+            const u = window.__currentUniversity || {};
+            const b = window.__currentBasic || {};
+            const majors = Array.isArray(b.key_majors) ? b.key_majors : [];
+            const moodName = (u.mood_type && u.mood_type.name) ? u.mood_type.name : '';
+            const mbtiType = (document.getElementById('mbtiTypeVal')?.textContent || '').trim();
+
+            const kwEl = document.getElementById('seoKeywords');
+            const linksEl = document.getElementById('seoLinks');
+            const faqEl = document.getElementById('seoFaq');
+            if (!kwEl || !linksEl || !faqEl) return;
+
+            const kwText = [
+                `${u.name}（${b.region || u.province || '-'}，${b.level || '-'}，${b.nature || u.type || '-' }）`,
+                `重点专业：${majors.slice(0,6).join('、') || '-'}`,
+                moodName ? `气质画像：${moodName}` : '',
+                mbtiType ? `MBTI匹配：${mbtiType}` : ''
+            ].filter(Boolean).join('；');
+            kwEl.textContent = kwText || `${u.name} 基本信息与关键词`;
+
+            const base = (window.location.pathname.includes('huilanweb') ? '/huilanweb' : '');
+            const linksHtml = `
+                相关页面：
+                <a href="${base}/leaderboard.html" rel="internal">校园人格榜单</a> · 
+                <a href="${base}/mood-map.html" rel="internal">大学图谱</a> · 
+                <a href="${base}/search.html" rel="internal">高校搜索</a>
+            `;
+            linksEl.innerHTML = linksHtml;
+
+            const site = document.getElementById('officialSite')?.getAttribute('href') || '';
+            const faqHtml = `
+                <div style="line-height:1.8;">
+                    <div><strong>Q：</strong>${u.name}有哪些重点专业？<br/><strong>A：</strong>${majors.length ? majors.join('、') : '暂无重点专业信息'}</div>
+                    <div style="margin-top:.4rem;"><strong>Q：</strong>${u.name}适合什么样的性格或MBTI类型？<br/><strong>A：</strong>${[moodName ? `气质：${moodName}` : '', mbtiType ? `MBTI：${mbtiType}` : ''].filter(Boolean).join('；') || '暂无画像信息'}</div>
+                    <div style="margin-top:.4rem;"><strong>Q：</strong>${u.name}属于什么层次及办学性质？<br/><strong>A：</strong>层次：${b.level || '-'}；性质：${b.nature || u.type || '-'}</div>
+                    <div style="margin-top:.4rem;"><strong>Q：</strong>如何查看${u.name}的官网？<br/><strong>A：</strong>${site ? `<a href="${site}" target="_blank" rel="noopener">${stripProtocol(site)}</a>` : '暂无官网地址'}</div>
+                    <div style="margin-top:.4rem;"><strong>Q：</strong>${u.name}近年录取分数线如何？<br/><strong>A：</strong>分省分批次差异较大，请以省级招考信息与学校招生简章为准。</div>
+                    <div style="margin-top:.4rem;"><strong>Q：</strong>${u.name}住宿条件怎么样？<br/><strong>A：</strong>宿舍条件以学校后勤与学院安排为准，建议查看官网的新生指南或后勤公告。</div>
+                    <div style="margin-top:.4rem;"><strong>Q：</strong>${u.name}奖学金设置有哪些？<br/><strong>A：</strong>通常设有国家/校级/学院奖助学金，具体标准与申请条件以学校官网发布为准。</div>
+                    <div style="margin-top:.4rem;"><strong>Q：</strong>${u.name}是否有国际合作与交流项目？<br/><strong>A：</strong>多数高校与境内外高校/企业设有合作交流项目，请查询国际合作与交流办公室或学院通知。</div>
+                </div>
+            `;
+            faqEl.innerHTML = faqHtml;
         }
 
         // 分享：复制卡片（文本+HTML）
@@ -809,8 +1018,18 @@
         }
 
         function getClientId() {
-            const m = document.cookie.match(/(?:^|;\s*)hj_client_id=([^;]+)/);
-            return m ? decodeURIComponent(m[1]) : null;
+            try {
+                const pairs = document.cookie.split(';');
+                for (const raw of pairs) {
+                    const idx = raw.indexOf('=');
+                    const key = (idx >= 0 ? raw.slice(0, idx) : raw).trim();
+                    if (key === 'hj_client_id') {
+                        const val = idx >= 0 ? raw.slice(idx + 1) : '';
+                        return decodeURIComponent(val || '');
+                    }
+                }
+            } catch {}
+            return null;
         }
         function setClientId(id) {
             const maxAge = 30 * 24 * 60 * 60; // 30天

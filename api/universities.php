@@ -27,8 +27,26 @@ try {
     $db = $database->getConnection();
 
     if (!$db) {
-        http_response_code(500);
-        echo json_encode(array("message" => "Database connection failed"));
+        // 数据库不可用时，返回后端占位推荐，避免首页中断
+        $fallback = [
+            [ 'id' => 101, 'name' => '清华大学', 'province' => '北京', 'city' => '北京', 'type' => '综合', 'mood_type_slug' => 'rational_creator', 'one_line' => '工程与计算机强势（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+            [ 'id' => 102, 'name' => '北京大学', 'province' => '北京', 'city' => '北京', 'type' => '综合', 'mood_type_slug' => 'rational_creator', 'one_line' => '综合实力卓越（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+            [ 'id' => 103, 'name' => '浙江大学', 'province' => '浙江', 'city' => '杭州', 'type' => '综合', 'mood_type_slug' => 'practical_achiever', 'one_line' => '创新与研究氛围浓厚（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+            [ 'id' => 104, 'name' => '上海交通大学', 'province' => '上海', 'city' => '上海', 'type' => '理工', 'mood_type_slug' => 'rational_creator', 'one_line' => '理工科优势明显（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+            [ 'id' => 105, 'name' => '中国科学技术大学', 'province' => '安徽', 'city' => '合肥', 'type' => '理工', 'mood_type_slug' => 'rational_creator', 'one_line' => '科研导向（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+            [ 'id' => 106, 'name' => '南京大学', 'province' => '江苏', 'city' => '南京', 'type' => '综合', 'mood_type_slug' => 'artistic_explorer', 'one_line' => '学术基础雄厚（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+        ];
+        $limit = isset($_GET['limit']) ? max(1, min(100, intval($_GET['limit']))) : 6;
+        $slice = array_slice($fallback, 0, $limit);
+        http_response_code(200);
+        echo json_encode([
+            'data' => $slice,
+            'total' => count($slice),
+            'page' => 1,
+            'per_page' => count($slice),
+            'total_pages' => 1,
+            'message' => '返回占位数据（数据库暂不可用）'
+        ], JSON_UNESCAPED_UNICODE);
         exit();
     }
 
@@ -72,11 +90,26 @@ try {
     echo json_encode($result);
 
 } catch (Exception $e) {
-    // 错误处理
-    http_response_code(500);
-    echo json_encode(array(
-        "message" => "Internal server error",
-        "error" => $e->getMessage()
-    ));
+    // 错误处理：后端占位数据降级
+    error_log('Universities API Error: ' . $e->getMessage());
+    $fallback = [
+        [ 'id' => 101, 'name' => '清华大学', 'province' => '北京', 'city' => '北京', 'type' => '综合', 'mood_type_slug' => 'rational_creator', 'one_line' => '工程与计算机强势（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+        [ 'id' => 102, 'name' => '北京大学', 'province' => '北京', 'city' => '北京', 'type' => '综合', 'mood_type_slug' => 'rational_creator', 'one_line' => '综合实力卓越（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+        [ 'id' => 103, 'name' => '浙江大学', 'province' => '浙江', 'city' => '杭州', 'type' => '综合', 'mood_type_slug' => 'practical_achiever', 'one_line' => '创新与研究氛围浓厚（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+        [ 'id' => 104, 'name' => '上海交通大学', 'province' => '上海', 'city' => '上海', 'type' => '理工', 'mood_type_slug' => 'rational_creator', 'one_line' => '理工科优势明显（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+        [ 'id' => 105, 'name' => '中国科学技术大学', 'province' => '安徽', 'city' => '合肥', 'type' => '理工', 'mood_type_slug' => 'rational_creator', 'one_line' => '科研导向（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+        [ 'id' => 106, 'name' => '南京大学', 'province' => '江苏', 'city' => '南京', 'type' => '综合', 'mood_type_slug' => 'artistic_explorer', 'one_line' => '学术基础雄厚（占位）', 'logo_url' => null, 'like_count' => 0, 'poll_counts' => 0 ],
+    ];
+    $limit = isset($_GET['limit']) ? max(1, min(100, intval($_GET['limit']))) : 6;
+    $slice = array_slice($fallback, 0, $limit);
+    http_response_code(200);
+    echo json_encode([
+        'data' => $slice,
+        'total' => count($slice),
+        'page' => 1,
+        'per_page' => count($slice),
+        'total_pages' => 1,
+        'message' => '返回占位数据（数据库暂不可用）'
+    ], JSON_UNESCAPED_UNICODE);
 }
 ?>

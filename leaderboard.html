@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>校园人格榜单 · 每周热门MBTI高校 - 青蓝君</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 16px; }
+    h1 { font-size: 1.6rem; margin: 0.5rem 0 1rem; }
+    .period { color: #666; font-size: .95rem; }
+    .tabs { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    .tab { padding: 6px 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; }
+    .tab.active { background: #eef2ff; border-color: #c7d2fe; color: #1f2937; }
+    .list { margin-top: 14px; border: 1px solid #eee; border-radius: 10px; overflow: hidden; }
+    .row { display: grid; grid-template-columns: 56px 1fr 100px; gap: 10px; padding: 10px 12px; border-bottom: 1px solid #f3f4f6; align-items: center; }
+    .row:last-child { border-bottom: none; }
+    .no { font-weight: 700; color: #374151; }
+    .name { font-weight: 600; color: #111827; }
+    .votes { text-align: right; color: #4b5563; }
+    .sr { color: #6b7280; font-size: .9rem; margin-top: 6px; }
+    .section { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div id="top-nav"></div>
+  <main class="wrap">
+    <h1>校园人格榜单</h1>
+    <div class="period" id="period">加载中...</div>
+
+    <section class="section">
+      <h2 style="font-size:1.2rem;">总榜（近7天）</h2>
+      <div class="list" id="overallList"></div>
+    </section>
+
+    <section class="section">
+      <h2 style="font-size:1.2rem;">按气质类型</h2>
+      <div class="tabs" id="moodTabs"></div>
+      <div class="list" id="moodList"></div>
+      <div class="sr">说明：根据近7天投票数据统计，反映近期偏好趋势。</div>
+    </section>
+  </main>
+
+  <script>
+    const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+    const apiBase = base + '/api';
+
+    async function fetchLeaderboard() {
+      try {
+        const r = await fetch(`${apiBase}/mbti_leaderboard`);
+        return await r.json();
+      } catch {
+        return null;
+      }
+    }
+
+    function renderPeriod(period, days) {
+      const el = document.getElementById('period');
+      if (!period) { el.textContent = '统计窗口：近7天'; return; }
+      el.textContent = `统计窗口：${period.start} ~ ${period.end}（近${days || 7}天）`;
+    }
+
+    function renderOverall(list) {
+      const box = document.getElementById('overallList');
+      if (!list || !list.length) { box.innerHTML = '<div class="sr">暂无数据</div>'; return; }
+      box.innerHTML = list.map((it, i) => (
+        `<div class="row">
+          <div class="no">#${i+1}</div>
+          <div class="name">${it.name}</div>
+          <div class="votes">${it.vote_count} 票</div>
+        </div>`
+      )).join('');
+    }
+
+    function renderMoodTabs(moods, onClick) {
+      const tabs = document.getElementById('moodTabs');
+      tabs.innerHTML = '';
+      moods.forEach((m, idx) => {
+        const b = document.createElement('button');
+        b.className = 'tab' + (idx === 0 ? ' active' : '');
+        b.textContent = m.mood.name;
+        b.addEventListener('click', () => {
+          tabs.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          b.classList.add('active');
+          onClick(m);
+        });
+        tabs.appendChild(b);
+      });
+      if (moods.length) { onClick(moods[0]); }
+    }
+
+    function renderMoodList(m) {
+      const box = document.getElementById('moodList');
+      const list = m.top_universities || [];
+      if (!list.length) { box.innerHTML = '<div class="sr">该类型暂无数据</div>'; return; }
+      box.innerHTML = list.map((it, i) => (
+        `<div class="row">
+          <div class="no">#${i+1}</div>
+          <div class="name">${it.name}</div>
+          <div class="votes">${it.vote_count} 票</div>
+        </div>`
+      )).join('');
+    }
+
+    (async function init() {
+      const data = await fetchLeaderboard();
+      renderPeriod(data?.period, data?.window_days);
+      renderOverall(data?.data?.overall || []);
+      renderMoodTabs(data?.data?.by_mood || [], renderMoodList);
+    })();
+  </script>
+  <script src="top-nav.js"></script>
+</body>
+</html>

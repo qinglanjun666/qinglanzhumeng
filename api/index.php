@@ -114,6 +114,11 @@ switch ($path_parts[0]) {
         // 气质类型 API: /api/mood_types
         include_once 'mood_types.php';
         break;
+
+    case 'mbti_leaderboard':
+        // 每周MBTI高校榜单：/api/mbti_leaderboard
+        include_once 'mbti_leaderboard.php';
+        break;
     
     case 'assessment':
         if (isset($path_parts[1])) {
@@ -162,6 +167,7 @@ switch ($path_parts[0]) {
                 "GET /api/personality_tags" => "获取性格标签列表",
                 "GET /api/university/{id}/tags" => "获取指定大学的性格标签",
                 "GET /api/mood_types" => "获取气质类型列表",
+                "GET /api/mbti_leaderboard" => "获取每周MBTI高校榜单",
                 "GET /api/assessment/questions" => "获取测评题目",
                 "POST /api/assessment/submit" => "提交测评答案",
                 "POST /api/admin/import/universities" => "导入或更新大学数据（CSV）",

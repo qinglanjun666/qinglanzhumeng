@@ -22,8 +22,10 @@ class Database {
                 PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8mb4'
             ];
             $this->conn = new PDO($dsn, $this->username, $this->password, $options);
-        } catch(PDOException $exception) {
-            echo "Connection error: " . $exception->getMessage();
+        } catch(Throwable $exception) {
+            // 覆盖所有连接异常（包含未安装PDO扩展、PDOException等），避免接口抛 500
+            error_log("DB connection error: " . $exception->getMessage());
+            $this->conn = null;
         }
 
         return $this->conn;

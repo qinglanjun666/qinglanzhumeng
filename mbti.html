@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MBTI测评 - 青蓝君</title>
+  <meta name="description" content="答题获得你的MBTI类型，过程流畅、结果准确，并可查看高校推荐。" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Microsoft YaHei', Arial, sans-serif; background: #f7f8fb; color: #333; margin: 0; }
+    .container { max-width: 880px; margin: 0 auto; padding: 20px; }
+    .nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+    .logo { font-weight: bold; color: #333; text-decoration: none; }
+    .card { background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,.04); }
+    .progress { display: flex; justify-content: space-between; align-items: center; margin: 0; color: #666; }
+    .bar { width: 100%; height: 6px; background: #eef1f6; border-radius: 999px; overflow: hidden; }
+    .bar-inner { height: 100%; background: linear-gradient(90deg,#4f79ff,#2dc5a1); width: 0%; transition: width .3s ease; }
+    .q-title { font-size: 1.1rem; font-weight: 600; margin-bottom: .6rem; }
+    .q-header { display: grid; grid-template-columns: auto 1fr auto; align-items: flex-start; gap: .6rem; }
+    .q-actions, .q-actions-left, .q-actions-right { display: inline-flex; gap: .6rem; align-items: center; }
+    .options { display: grid; grid-template-columns: 1fr; gap: .6rem; }
+    .opt { padding: .8rem; border: 1px solid #e6e8ef; border-radius: 10px; cursor: pointer; background: #fff; transition: all .2s ease; }
+    .opt:hover { border-color: #c7cbda; background: #fafbff; }
+    .opt.selected { border-color: #4f79ff; background: #f0f4ff; }
+    .actions { display: flex; gap: .6rem; justify-content: space-between; align-items: center; margin-top: .8rem; }
+    .btn { padding: .6rem .9rem; border: 1px solid #ddd; border-radius: 10px; background: #fff; cursor: pointer; }
+    .btn.primary { background: #4f79ff; color: #fff; border-color: #4f79ff; }
+    .btn[disabled] { opacity: .5; cursor: not-allowed; }
+    .sr { font-size: .9rem; color: #666; }
+    .slide-enter-right { animation: slideInRight .26s ease both; }
+    .slide-enter-left { animation: slideInLeft .26s ease both; }
+    .slide-leave-left { animation: slideOutLeft .18s ease both; }
+    .slide-leave-right { animation: slideOutRight .18s ease both; }
+    @keyframes slideInRight { from { opacity:0; transform: translateX(24px);} to { opacity:1; transform: translateX(0);} }
+    @keyframes slideInLeft { from { opacity:0; transform: translateX(-24px);} to { opacity:1; transform: translateX(0);} }
+    @keyframes slideOutLeft { from { opacity:1; transform: translateX(0);} to { opacity:0; transform: translateX(-24px);} }
+    @keyframes slideOutRight { from { opacity:1; transform: translateX(0);} to { opacity:0; transform: translateX(24px);} }
+    .result { text-align: center; }
+    .mbti-badge { display: inline-block; padding: .6rem 1rem; border-radius: 999px; background: #eef1f6; color: #333; font-weight: 700; letter-spacing: .08rem; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin-top: .8rem; }
+    .pill { padding: .4rem .6rem; background: #fafbff; border: 1px solid #e6e8ef; border-radius: 8px; text-align: center; color: #555; }
+    .analysis { margin-top: 1rem; text-align: left; }
+    .analysis h3 { margin: .2rem 0 .4rem; font-size: 1rem; }
+    .analysis .row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .analysis .block { background: #fafbff; border: 1px solid #e6e8ef; border-radius: 10px; padding: .8rem; }
+    .analysis ul { margin: .4rem 0 0; padding-left: 1.1rem; color: #555; }
+    .mini-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: .6rem; margin-top: .6rem; }
+    .mini-card { background: #fff; border: 1px solid #e6e8ef; border-radius: 12px; padding: .8rem; display: flex; gap: .6rem; align-items: center; }
+    .mini-card .thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: #f3f4f6; }
+    .mini-card .name { font-weight: 600; }
+    .mini-card .desc { font-size: .9rem; color: #666; margin-top: .2rem; }
+    /* 分享名片样式 */
+    .card-maker { margin-top: 1rem; }
+    .card-maker h3 { font-size: 1rem; margin: 0 0 .6rem; }
+    .card-maker .maker-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+    .maker-controls { background: #fafbff; border: 1px solid #e6e8ef; border-radius: 10px; padding: .8rem; }
+    .maker-controls .row { display: grid; grid-template-columns: 120px 1fr; align-items: center; gap: .6rem; margin-bottom: .6rem; }
+    .maker-controls input, .maker-controls select { width: 100%; padding: .4rem .5rem; border: 1px solid #dfe3ea; border-radius: 8px; }
+    .maker-preview { background: #fff; border: 1px solid #e6e8ef; border-radius: 10px; padding: .8rem; text-align: center; }
+    #cardCanvas { width: 100%; height: auto; max-height: 520px; background: #f8fafc; border-radius: 12px; }
+    .maker-actions { display: flex; gap: .6rem; justify-content: center; margin-top: .6rem; }
+
+    /* 布局调整：题目与按钮在上，进度在下；底部固定为“进度 + 进度条” */
+    #quiz { display: flex; flex-direction: column; }
+    #questionBox { order: 1; min-height: 180px; }
+    #hint { order: 3; }
+    .progress-wrap { order: 4; margin-top: auto; }
+    .progress-wrap .progress { margin-bottom: .4rem; }
+
+    /* 移动端优化：操作按钮改为上下布局，增加点击区 */
+    @media (max-width: 768px) {
+      .q-header { display: flex; flex-direction: column; align-items: stretch; }
+      .q-actions, .q-actions-left, .q-actions-right { display: grid; grid-template-columns: 1fr; }
+      .q-actions .btn, .q-actions-left .btn, .q-actions-right .btn { width: 100%; padding: .8rem 1rem; }
+      /* 选项下方操作区：移动端上下排列并拉满宽度 */
+      .actions { flex-direction: column; align-items: stretch; gap: .6rem; }
+      .actions .btn { width: 100%; padding: .8rem 1rem; }
+      .right-actions { display: grid; grid-template-columns: 1fr; gap: .6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div id="top-nav"></div>
+  <main class="container">
+    <div class="nav">
+      <a class="logo" href="index.html">绘斓</a>
+      <span class="sr">MBTI 测评</span>
+    </div>
+
+    <section id="quiz" class="card" aria-live="polite">
+      <div id="questionBox" style="margin-top:.4rem;"></div>
+      <div id="hint" class="sr" style="margin-top:.6rem;"></div>
+      <div class="progress-wrap">
+        <div class="progress">
+          <span id="progressText">加载题库中...</span>
+          <span id="progressDetail" style="margin-left:auto;">—</span>
+        </div>
+        <div class="bar"><div id="barInner" class="bar-inner"></div></div>
+      </div>
+    </section>
+
+    <section id="result" class="card result" style="display:none;">
+      <div style="margin-bottom:.6rem;">你的 MBTI 类型为：</div>
+      <div id="mbtiBadge" class="mbti-badge">----</div>
+      <div id="mbtiBreakdown" class="grid"></div>
+      <div id="temper" class="sr" style="margin-top:.6rem;"></div>
+      <div class="analysis">
+        <h3>类型解读</h3>
+        <div class="row">
+          <div class="block">
+            <div><strong>特征概览</strong></div>
+            <ul id="ana_intro"></ul>
+          </div>
+          <div class="block">
+            <div><strong>学习建议</strong></div>
+            <ul id="ana_tips"></ul>
+          </div>
+        </div>
+        <div class="row" style="margin-top:.6rem;">
+          <div class="block">
+            <div><strong>优势倾向</strong></div>
+            <ul id="ana_strengths"></ul>
+          </div>
+          <div class="block">
+            <div><strong>注意要点</strong></div>
+            <ul id="ana_cautions"></ul>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:1rem; text-align:left;">
+        <h3 style="font-size:1rem;">为你精选的高校（Top 3）</h3>
+        <div id="miniRec" class="mini-grid"></div>
+      </div>
+      <div class="card-maker">
+        <h3>生成你的个性名片（可下载/分享）</h3>
+        <div class="maker-grid">
+          <div class="maker-controls">
+            <div class="row">
+              <label for="cardNameInput">昵称/署名</label>
+              <input id="cardNameInput" type="text" placeholder="例如：小绘" maxlength="20" />
+            </div>
+            <div class="row">
+              <label for="cardUniversitySelect">高校选择</label>
+              <select id="cardUniversitySelect">
+                <option value="">（可选）从推荐里选择一所</option>
+              </select>
+            </div>
+            <div class="sr">提示：选择或更改以上信息后会自动更新预览。</div>
+          </div>
+          <div class="maker-preview">
+            <canvas id="cardCanvas" width="800" height="1000" aria-label="名片预览"></canvas>
+            <div class="maker-actions">
+              <button id="btnDownloadCard" class="btn">下载图片</button>
+              <button id="btnShareCard" class="btn">分享图片</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:1rem; display:flex; gap:.6rem; justify-content:center;">
+        <a id="btnRecommend" class="btn primary" href="#">查看高校推荐</a>
+        <button id="btnShare" class="btn">分享结果</button>
+        <a class="btn" href="index.html">返回首页</a>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+    const apiBase = base + '/api';
+
+    let questions = [];
+    let current = 0;
+    let answers = []; // 每题记录 {id, value}
+
+    document.addEventListener('DOMContentLoaded', init);
+
+    async function init() {
+      bindNav();
+      await loadQuestions();
+      if (questions.length) {
+        current = 0;
+        answers = new Array(questions.length).fill(null);
+        tryRestore();
+        renderQuestion();
+        updateProgress();
+      }
+    }
+
+    function bindNav() {
+      const shareBtn = document.getElementById('btnShare');
+      if (shareBtn) shareBtn.addEventListener('click', doShare);
+    }
+
+    async function loadQuestions() {
+      const progressText = document.getElementById('progressText');
+      try {
+        progressText.textContent = '加载题库中...';
+        const res = await fetch(`${apiBase}/mbti_questions.php`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.text();
+        let json;
+        try {
+          json = JSON.parse(raw);
+        } catch (parseErr) {
+          throw new Error('接口返回非JSON：' + raw.slice(0, 80));
+        }
+        if (json && json.success && json.data && Array.isArray(json.data.questions)) {
+          // 随机抽取5题
+          const all = json.data.questions;
+          const pickRandom = (arr, n) => {
+            const a = arr.slice();
+            for (let i = a.length - 1; i > 0; i--) {
+              const j = Math.floor(Math.random() * (i + 1));
+              const t = a[i]; a[i] = a[j]; a[j] = t;
+            }
+            return a.slice(0, Math.min(n, a.length));
+          };
+          questions = pickRandom(all, 5);
+          progressText.textContent = `本次随机 5 题`;
+          tryRestore();
+        } else {
+          throw new Error(json && json.message || '题库获取失败');
+        }
+      } catch (e) {
+        progressText.textContent = '题库加载失败';
+        showHint('无法加载题库：' + e.message);
+        // 最后降级：提供内置最小题库，保证可用
+        questions = [
+          { id: 1, question: '你更喜欢哪种聚会？', options: [ {text:'热闹的大型聚会', value:'E'}, {text:'小圈子的深度交流', value:'I'} ] },
+          { id: 6, question: '你更关注？', options: [ {text:'未来的可能性', value:'N'}, {text:'现实的细节', value:'S'} ] },
+          { id: 11, question: '你更看重？', options: [ {text:'逻辑和分析', value:'T'}, {text:'感受和关系', value:'F'} ] },
+          { id: 17, question: '工作方式？', options: [ {text:'有条理按计划', value:'J'}, {text:'灵活应变', value:'P'} ] },
+          { id: 21, question: '做决定时你倾向于？', options: [ {text:'基于客观依据', value:'T'}, {text:'考虑人情感受', value:'F'} ] }
+        ];
+        progressText.textContent = `本次随机 5 题（已降级）`;
+      }
+    }
+
+    function renderQuestion(direction) {
+      const box = document.getElementById('questionBox');
+      const q = questions[current];
+      const progressText = document.getElementById('progressText');
+      progressText.textContent = `第 ${current + 1} / ${questions.length} 题`;
+      const selectedValue = answers[current]?.value || null;
+      const html = `
+        <div class="${direction==='next'?'slide-enter-right':'slide-enter-left'}">
+          <div class="q-title">${q.question}</div>
+          <div class="options">
+            ${q.options.map((opt, idx) => `
+              <div class="opt ${selectedValue === opt.value ? 'selected' : ''}" data-value="${opt.value}">
+                ${opt.text}
+              </div>
+            `).join('')}
+          </div>
+          <div class="actions">
+            <button id="btnPrev" class="btn" ${current===0?'disabled':''}>上一题</button>
+            <div class="right-actions">
+              <button id="btnNext" class="btn primary">下一题</button>
+              <button id="btnSubmit" class="btn primary" style="display:none;">提交结果</button>
+            </div>
+          </div>
+        </div>
+      `;
+      box.innerHTML = html;
+      box.querySelectorAll('.opt').forEach(el => {
+        el.addEventListener('click', () => {
+          box.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+          el.classList.add('selected');
+          answers[current] = { id: q.id, value: el.getAttribute('data-value') };
+          toggleNavButtons();
+          saveProgress();
+        });
+      });
+      // 绑定顶部操作按钮
+      const prevBtn = document.getElementById('btnPrev');
+      const nextBtn = document.getElementById('btnNext');
+      const submitBtn = document.getElementById('btnSubmit');
+      if (prevBtn) prevBtn.addEventListener('click', () => {
+        if (current > 0) { animateLeave('prev', () => { current--; renderQuestion('prev'); updateProgress(); }); }
+      });
+      if (nextBtn) nextBtn.addEventListener('click', () => {
+        const selected = answers[current];
+        if (!selected) { showHint('请选择一个选项'); return; }
+        if (current < questions.length - 1) {
+          animateLeave('next', () => { current++; renderQuestion('next'); updateProgress(); });
+        }
+      });
+      if (submitBtn) submitBtn.addEventListener('click', () => {
+        const unfilled = answers.some(a => !a);
+        if (unfilled) { showHint('还有未作答的题目'); return; }
+        const type = computeMbti(answers);
+        showResult(type);
+      });
+      toggleNavButtons();
+    }
+
+    function toggleNavButtons() {
+      const prev = document.getElementById('btnPrev');
+      const next = document.getElementById('btnNext');
+      const submit = document.getElementById('btnSubmit');
+      prev.disabled = current === 0;
+      const selected = !!answers[current];
+      next.disabled = !selected || current >= questions.length - 1;
+      submit.style.display = current === questions.length - 1 ? 'inline-block' : 'none';
+    }
+
+    function updateProgress() {
+      const inner = document.getElementById('barInner');
+      const pct = Math.round(((current) / Math.max(1, questions.length)) * 100);
+      inner.style.width = pct + '%';
+      const detail = document.getElementById('progressDetail');
+      if (detail) {
+        const remain = Math.max(0, questions.length - (current + 1));
+        detail.textContent = `剩余 ${remain} 题 · 进度 ${pct}%`;
+      }
+      const submitBtn = document.getElementById('btnSubmit');
+      if (submitBtn) submitBtn.style.display = current === questions.length - 1 ? 'inline-block' : 'none';
+    }
+
+    function animateLeave(direction, onDone) {
+      const box = document.getElementById('questionBox');
+      box.classList.add(direction==='next' ? 'slide-leave-left' : 'slide-leave-right');
+      setTimeout(() => {
+        box.classList.remove('slide-leave-left');
+        box.classList.remove('slide-leave-right');
+        onDone && onDone();
+      }, 180);
+    }
+
+    function showHint(text) {
+      document.getElementById('hint').textContent = text || '';
+    }
+
+    function computeMbti(answers) {
+      const counts = {E:0,I:0,N:0,S:0,T:0,F:0,J:0,P:0};
+      answers.forEach(a => { if (a && counts.hasOwnProperty(a.value)) counts[a.value]++; });
+      const code = [
+        counts.E >= counts.I ? 'E' : 'I',
+        counts.N >= counts.S ? 'N' : 'S',
+        counts.T >= counts.F ? 'T' : 'F',
+        counts.J >= counts.P ? 'J' : 'P'
+      ].join('');
+      return { code, counts };
+    }
+
+    const LS_KEY = 'hj_mbti_progress_v1';
+
+    function saveProgress() {
+      try {
+        const payload = { current, answers };
+        localStorage.setItem(LS_KEY, JSON.stringify(payload));
+      } catch {}
+    }
+
+    function tryRestore() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (!data || !Array.isArray(data.answers)) return;
+        answers = new Array(questions.length).fill(null);
+        for (let i = 0; i < Math.min(questions.length, data.answers.length); i++) {
+          const a = data.answers[i];
+          if (a && a.value) answers[i] = a;
+        }
+        current = Math.min(Math.max(0, data.current || 0), questions.length - 1);
+        showHint('已恢复上次进度');
+      } catch {}
+    }
+
+    const TEMPER = {
+      INTJ: '战略型：理性、目标导向、创新力强',
+      INTP: '思辨型：独立思考、求真务实、理论驱动',
+      INFJ: '洞察型：理想主义、人文关怀、内省深刻',
+      INFP: '理想型：真诚温和、共情力强、价值驱动',
+      ISTJ: '稳重型：严谨务实、规则感强、责任心重',
+      ISTP: '实干型：动手能力强、冷静分析、解决问题',
+      ISFJ: '守护型：细致耐心、重视承诺、可靠温和',
+      ISFP: '温柔型：随性低调、审美敏感、包容坦诚',
+      ENTJ: '统帅型：决策果断、组织力强、追求效率',
+      ENTP: '创新型：思维活跃、善于辩证、跨界融合',
+      ENFJ: '领导型：善于沟通、团队协调、社会关怀',
+      ENFP: '创意型：表达力强、感染力足、灵感驱动',
+      ESTJ: '管理型：秩序清晰、执行到位、注重规范',
+      ESTP: '行动型：适应力强、反应迅速、追求体验',
+      ESFJ: '关怀型：乐于助人、关系导向、团队意识',
+      ESFP: '活力型：热情外向、享受生活、社交自然'
+    };
+
+    const MBTI_ANALYSIS = {
+      INTJ: {
+        intro: ['战略思维强','偏好独立研究','目标导向、善于规划'],
+        strengths: ['纵深学习能力','抽象概念理解','长期项目规划'],
+        cautions: ['注意团队沟通','避免过度完美','平衡执行与探索'],
+        tips: ['制定阶段性里程碑','主动寻求反馈','通过项目驱动学习']
+      },
+      INTP: { intro:['好奇心强','逻辑与理论导向','喜欢探索未知'], strengths:['模型构建','问题拆解','跨学科连接'], cautions:['注意成果落地','避免拖延','控制兴趣发散'], tips:['设置明确输出','定期复盘','以问题清单驱动'] },
+      INFJ: { intro:['洞察力强','关注人文与价值','内省深刻'], strengths:['同理心','长线深耕','结构化表达'], cautions:['注意信息过载','避免自我消耗','适度外部交流'], tips:['设定界限','安排休息节律','参与讨论提升外向度'] },
+      INFP: { intro:['理想主义','真诚温和','价值驱动'], strengths:['原创表达','创意构思','叙事能力'], cautions:['抗压训练','避免情绪化决策','加强时间管理'], tips:['使用番茄钟','拆分任务','以作品集方式积累'] },
+      ISTJ: { intro:['稳健务实','规则感强','重视责任'], strengths:['执行力','细节把控','结构化管理'], cautions:['提升灵活性','避免路径依赖','拓展创新体验'], tips:['预留探索时间','使用看板工具','尝试不同学习方法'] },
+      ISTP: { intro:['实干导向','冷静分析','动手能力强'], strengths:['快速试错','现场问题解决','工程思维'], cautions:['完善文档化','强化团队协作','长期规划意识'], tips:['记录实验过程','使用模板复盘','设定学习里程碑'] },
+      ISFJ: { intro:['细致耐心','重视承诺','可靠温和'], strengths:['稳定输出','服务意识','记忆与整理'], cautions:['避免过度付出','提升表达主导','尝试新领域'], tips:['明确边界','安排自我提升时间','参与跨组项目'] },
+      ISFP: { intro:['审美敏感','温柔随性','独立思考'], strengths:['艺术表达','体验驱动创新','察觉细节'], cautions:['增强规划性','避免拖延','形成可复用方法'], tips:['建立风格库','制定作品计划','参与社群交流'] },
+      ENTJ: { intro:['组织力强','追求效率','善于决策'], strengths:['资源整合','目标驱动','大局观'], cautions:['关注团队情绪','避免效率至上','兼顾质量'], tips:['设立反馈机制','进行一对一沟通','平衡速度与深度'] },
+      ENTP: { intro:['思维活跃','辩证能力强','跨界融合'], strengths:['创意爆发','假设检验','快速原型'], cautions:['避免半途而废','落地到结果','控制跳跃思维'], tips:['定义完成标准','阶段交付','以Demo驱动推进'] },
+      ENFJ: { intro:['沟通协调','社会关怀','团队领导'], strengths:['组织协作','人际洞察','激励他人'], cautions:['注意自我需求','避免过度承担','平衡管控与支持'], tips:['设定个人目标','合理分工','定期自我评估'] },
+      ENFP: { intro:['表达力强','感染力足','灵感驱动'], strengths:['创意策划','故事化表达','社交连接'], cautions:['建立结构化流程','稳定节奏','避免过度分心'], tips:['用模板固化流程','时间块管理','明确优先级'] },
+      ESTJ: { intro:['秩序清晰','执行到位','注重规范'], strengths:['流程管理','资源调度','结果导向'], cautions:['适度灵活','鼓励创新','避免僵化'], tips:['在流程中嵌入创新节点','复盘改进','收集团队建议'] },
+      ESTP: { intro:['适应力强','反应迅速','追求体验'], strengths:['现场把控','临场决策','快速学习'], cautions:['提升长线耐心','控制风险','形成知识沉淀'], tips:['建立学习档案','设定学习任务','引入导师制'] },
+      ESFJ: { intro:['关系导向','团队意识','乐于助人'], strengths:['组织社区','维护秩序','促进合作'], cautions:['关注个人成长','避免过度迎合','提升决策独立性'], tips:['明确个人目标','学习决策框架','安排独处时间'] },
+      ESFP: { intro:['热情外向','享受生活','社交自然'], strengths:['现场互动','体验设计','传播影响'], cautions:['避免短期化','建立复盘机制','强化深度思考'], tips:['记录经验教训','制定学习主题','减少碎片干扰'] }
+    };
+
+    function showResult(result) {
+      // 切换视图
+      document.getElementById('quiz').style.display = 'none';
+      const rs = document.getElementById('result');
+      rs.style.display = 'block';
+      // 渲染结果
+      document.getElementById('mbtiBadge').textContent = result.code;
+      const b = result.counts;
+      document.getElementById('mbtiBreakdown').innerHTML = [
+        `E:${b.E}`, `I:${b.I}`, `N:${b.N}`, `S:${b.S}`, `T:${b.T}`, `F:${b.F}`, `J:${b.J}`, `P:${b.P}`
+      ].map(t => `<div class="pill">${t}</div>`).join('');
+      const rec = document.getElementById('btnRecommend');
+      rec.href = `${base}/recommend.html?mbti=${encodeURIComponent(result.code)}`;
+      document.getElementById('temper').textContent = TEMPER[result.code] || '';
+      // 填充类型解读
+      fillAnalysis(result.code);
+      // 内嵌推荐预览Top3
+      loadInlineRecommendations(result.code);
+      // 初始化名片生成器
+      initCardMaker(result.code);
+      // 清除进度，避免下次进入直接跳到结果
+      try { localStorage.removeItem(LS_KEY); } catch {}
+    }
+
+    function fillAnalysis(code) {
+      const a = MBTI_ANALYSIS[code] || { intro:[], strengths:[], cautions:[], tips:[] };
+      const setList = (id, arr) => { const el = document.getElementById(id); el.innerHTML = (arr && arr.length) ? arr.map(x => `<li>${x}</li>`).join('') : '<li>暂无数据</li>'; };
+      setList('ana_intro', a.intro);
+      setList('ana_strengths', a.strengths);
+      setList('ana_cautions', a.cautions);
+      setList('ana_tips', a.tips);
+    }
+
+    async function loadInlineRecommendations(code) {
+      const box = document.getElementById('miniRec');
+      box.innerHTML = '';
+      try {
+        const res = await fetch(`${apiBase}/mbti_recommend.php?mbti=${encodeURIComponent(code)}`);
+        const json = await res.json();
+        const list = (json && json.data && Array.isArray(json.data)) ? json.data.slice(0,3) : [];
+        box.innerHTML = list.map(item => {
+          const img = item.illustration || (base + '/assets/placeholder.svg');
+          const uni = item.university || '-';
+          const desc = item.mbti_desc || '';
+          return `
+            <div class="mini-card" data-university="${uni.replace(/"/g,'&quot;')}">
+              <img class="thumb" src="${img}" alt="${uni}" loading="lazy" />
+              <div>
+                <div class="name">${uni}</div>
+                <div class="desc">${desc}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        // 将推荐填充到名片高校选择
+        populateCardUniversities(list);
+        // 绑定点击，跳转详情或搜索
+        box.querySelectorAll('.mini-card').forEach(card => {
+          card.addEventListener('click', async () => {
+            const uni = card.getAttribute('data-university');
+            try {
+              const r = await fetch(`${apiBase}/universities?q=${encodeURIComponent(uni)}&limit=1`);
+              const j = await r.json();
+              if (j && j.data && j.data.length && j.data[0].id) {
+                window.location.href = `${base}/university.html?id=${j.data[0].id}`;
+                return;
+              }
+            } catch {}
+            window.location.href = `${base}/search.html?q=${encodeURIComponent(uni)}`;
+          });
+        });
+      } catch (e) {
+        box.innerHTML = '<div class="sr">推荐预览加载失败</div>';
+      }
+    }
+
+    // --- 名片生成器 ---
+    const cardState = { code: 'INTJ', name: '', university: null };
+    function initCardMaker(code) {
+      cardState.code = code || cardState.code;
+      cardState.name = '';
+      cardState.university = null;
+      // 默认立即绘制一次
+      drawCard();
+      // 绑定事件
+      const nameInput = document.getElementById('cardNameInput');
+      const uniSelect = document.getElementById('cardUniversitySelect');
+      nameInput.value = '';
+      nameInput.addEventListener('input', () => { cardState.name = nameInput.value.trim(); drawCard(); });
+      uniSelect.addEventListener('change', () => {
+        const v = uniSelect.value;
+        const opt = uniSelect.options[uniSelect.selectedIndex];
+        if (!v) { cardState.university = null; drawCard(); return; }
+        cardState.university = { name: v, desc: opt.getAttribute('data-desc') || '' };
+        drawCard();
+      });
+      document.getElementById('btnDownloadCard').addEventListener('click', downloadCardImage);
+      document.getElementById('btnShareCard').addEventListener('click', shareCardImage);
+    }
+
+    function populateCardUniversities(list) {
+      const sel = document.getElementById('cardUniversitySelect');
+      // 清空除第一项
+      while (sel.options.length > 1) { sel.remove(1); }
+      list.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.university || '';
+        opt.textContent = item.university || '';
+        opt.setAttribute('data-desc', item.mbti_desc || '');
+        sel.appendChild(opt);
+      });
+    }
+
+    function drawCard() {
+      const canvas = document.getElementById('cardCanvas');
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width, H = canvas.height;
+      // 清空
+      ctx.clearRect(0,0,W,H);
+      // 背景渐变
+      const grad = ctx.createLinearGradient(0,0,W,H);
+      grad.addColorStop(0, '#f0f4ff');
+      grad.addColorStop(1, '#e8fff7');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+      // 外边距
+      const pad = 40;
+      // 顶部品牌
+      ctx.fillStyle = '#333';
+      ctx.font = 'bold 28px Microsoft YaHei, Arial';
+      ctx.fillText('绘斓 · MBTI 名片', pad, pad + 10);
+      // 名称与类型（无头像布局）
+      const name = cardState.name || '未设置昵称';
+      const code = cardState.code || 'INTJ';
+      const temper = TEMPER[code] || '';
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 40px Microsoft YaHei, Arial';
+      ctx.fillText(name, pad, pad + 80);
+      // MBTI徽章
+      const badgeX = pad;
+      const badgeY = pad + 130;
+      const badgeText = code;
+      ctx.font = 'bold 44px Arial';
+      const bt = ctx.measureText(badgeText);
+      ctx.fillStyle = '#4f79ff';
+      ctx.fillRect(badgeX - 16, badgeY - 44, bt.width + 32, 56);
+      ctx.fillStyle = '#fff';
+      ctx.fillText(badgeText, badgeX, badgeY);
+      // 气质描述
+      ctx.fillStyle = '#374151';
+      ctx.font = '24px Microsoft YaHei, Arial';
+      wrapText(ctx, temper, badgeX, badgeY + 36, W - pad*2, 30);
+      // 分隔线
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const lineY = badgeY + 120;
+      ctx.moveTo(pad, lineY);
+      ctx.lineTo(W - pad, lineY);
+      ctx.stroke();
+      // 高校
+      const uniY = lineY + 50;
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 28px Microsoft YaHei, Arial';
+      const uniName = cardState.university?.name || '（未选择高校）';
+      ctx.fillText('高校：' + uniName, pad, uniY);
+      ctx.fillStyle = '#4b5563';
+      ctx.font = '24px Microsoft YaHei, Arial';
+      const uniDesc = cardState.university?.desc || '';
+      wrapText(ctx, uniDesc, pad, uniY + 36, W - pad*2, 30);
+      // 底部网站
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '22px Arial';
+      ctx.fillText(window.location.origin + base + '/mbti.html', pad, H - pad);
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      if (!text) return;
+      const words = ('' + text).split('');
+      let line = '';
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line + words[i];
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && i > 0) {
+          ctx.fillText(line, x, y);
+          line = words[i];
+          y += lineHeight;
+        } else {
+          line = testLine;
+        }
+      }
+      ctx.fillText(line, x, y);
+    }
+
+    async function downloadCardImage() {
+      try {
+        const canvas = document.getElementById('cardCanvas');
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `mbti-card-${cardState.code}.png`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+      } catch (e) { showHint('下载失败，请稍后重试'); }
+    }
+
+    async function shareCardImage() {
+      try {
+        const canvas = document.getElementById('cardCanvas');
+        const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        const file = new File([blob], `mbti-card-${cardState.code}.png`, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: '我的 MBTI 名片', text: `类型：${cardState.code}` });
+        } else {
+          // 不支持文件分享则下载
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `mbti-card-${cardState.code}.png`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+          showHint('已下载图片，本机不支持直接分享');
+        }
+      } catch (e) { showHint('分享失败，请尝试下载后再手动分享'); }
+    }
+
+    async function doShare() {
+      const url = window.location.href;
+      const title = '我的 MBTI 测评结果';
+      const text = document.getElementById('mbtiBadge').textContent || 'MBTI';
+      if (navigator.share) {
+        try { await navigator.share({ title, text, url }); return; } catch {}
+      }
+      try { await navigator.clipboard.writeText(url); showHint('已复制分享链接'); } catch { showHint('复制失败，请手动复制地址栏链接'); }
+    }
+  </script>
+  <script src="top-nav.js"></script>
+  <div id="site-footer"></div>
+  <script src="site-footer.js"></script>
+</body>
+</html>
+    /* 布局调整：题目与按钮在上，进度在下；底部固定为“进度 + 进度条” */
+    #quiz { display: flex; flex-direction: column; }
+    #questionBox { order: 1; min-height: 160px; }
+    .actions { order: 2; }
+    #hint { order: 3; }
+    .progress-wrap { order: 4; margin-top: auto; }
+    .progress-wrap .progress { margin-bottom: .4rem; }

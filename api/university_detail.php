@@ -27,8 +27,34 @@ try {
     $db = $database->getConnection();
 
     if (!$db) {
-        http_response_code(500);
-        echo json_encode(array("message" => "Database connection failed"));
+        // 数据库不可用时的降级：返回占位详情，避免页面中断
+        $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        $fallback_detail = [
+            'id' => $id,
+            'name' => '示例大学',
+            'province' => null,
+            'city' => null,
+            'type' => '综合',
+            'one_line' => '占位数据（数据库暂不可用）',
+            'keywords' => null,
+            'logo_url' => null,
+            'mood_type' => [
+                'id' => 0,
+                'slug' => 'rational_creator',
+                'name' => '理性创造者',
+                'short_desc' => '理性、创新、工程气质（占位）',
+                'color' => '#4F46E5'
+            ],
+            'like_count' => 0,
+            'vote_distribution' => [
+                'rational_creator' => 0,
+                'practical_achiever' => 0,
+                'artistic_explorer' => 0,
+                'empathetic_collaborator' => 0
+            ]
+        ];
+        http_response_code(200);
+        echo json_encode($fallback_detail, JSON_UNESCAPED_UNICODE);
         exit();
     }
 
@@ -83,11 +109,33 @@ try {
     echo json_encode($university_detail);
 
 } catch (Exception $e) {
-    // 错误处理
-    http_response_code(500);
-    echo json_encode(array(
-        "message" => "Internal server error",
-        "error" => $e->getMessage()
-    ));
+    // 错误处理：返回占位详情，避免页面中断
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    $fallback_detail = [
+        'id' => $id,
+        'name' => '示例大学',
+        'province' => null,
+        'city' => null,
+        'type' => '综合',
+        'one_line' => '占位数据（后端异常）',
+        'keywords' => null,
+        'logo_url' => null,
+        'mood_type' => [
+            'id' => 0,
+            'slug' => 'rational_creator',
+            'name' => '理性创造者',
+            'short_desc' => '理性、创新、工程气质（占位）',
+            'color' => '#4F46E5'
+        ],
+        'like_count' => 0,
+        'vote_distribution' => [
+            'rational_creator' => 0,
+            'practical_achiever' => 0,
+            'artistic_explorer' => 0,
+            'empathetic_collaborator' => 0
+        ]
+    ];
+    http_response_code(200);
+    echo json_encode($fallback_detail, JSON_UNESCAPED_UNICODE);
 }
 ?>

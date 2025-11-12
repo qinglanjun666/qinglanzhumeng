@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>绘斓网 - 发现你的大学气质</title>
+    <title>青蓝君 - 发现你的大学气质</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Noto Sans SC', 'Inter', 'Microsoft YaHei', 'PingFang SC', Arial, sans-serif;
             line-height: 1.6;
             color: #333;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -70,7 +70,7 @@
         /* Hero Section */
         .hero {
             position: relative;
-            padding: 160px 0 120px;
+            padding: 84px 0 60px;
             text-align: center;
             color: white;
             overflow: hidden;
@@ -97,26 +97,26 @@
         .hero .container { position: relative; z-index: 1; }
 
         .hero h1 {
-            font-size: 3.8rem;
+            font-size: 3.4rem;
             font-weight: 700;
             letter-spacing: .02em;
-            margin-bottom: 1rem;
+            margin-bottom: .75rem;
             text-shadow: 0 8px 30px rgba(0,0,0,.35);
             opacity: 0;
             animation: fadeInUp 1s ease 0.2s forwards;
         }
 
         .hero .subtitle {
-            font-size: 1.25rem;
-            margin-bottom: 1.6rem;
+            font-size: 1.15rem;
+            margin-bottom: 1.2rem;
             color: rgba(255,255,255,.9);
             opacity: 0;
             animation: fadeInUp 1s ease 0.4s forwards;
         }
 
         .hero .description {
-            font-size: 1.1rem;
-            margin-bottom: 2.2rem;
+            font-size: 1.05rem;
+            margin-bottom: 1.4rem;
             color: rgba(255,255,255,.85);
             max-width: 680px;
             margin-left: auto;
@@ -129,10 +129,10 @@
             display: inline-block;
             background: linear-gradient(45deg, #ff6b6b, #ffa500);
             color: white;
-            padding: 18px 40px;
+            padding: 16px 34px;
             border-radius: 50px;
             text-decoration: none;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 700;
             letter-spacing: .02em;
             transition: all 0.3s ease;
@@ -150,7 +150,7 @@
         .mood-types {
             padding: 80px 0;
             background: rgba(255, 255, 255, 0.95);
-            margin-top: 50px;
+            margin-top: 24px;
         }
 
         .section-title {
@@ -358,16 +358,16 @@
             }
 
             .hero {
-                padding: 120px 0 80px;
+                padding: 72px 0 48px;
             }
 
             .hero h1 {
-                font-size: 2rem;
+                font-size: 1.9rem;
             }
 
             .cta-button {
-                padding: 15px 30px;
-                font-size: 1.1rem;
+                padding: 14px 28px;
+                font-size: 1.05rem;
             }
 
             .section-title {
@@ -479,6 +479,8 @@
         .rec-name { font-weight: 600; color: #111827; }
         .rec-one { font-size: 0.95rem; color: #6b7280; }
 </style>
+    <!-- 高考倒计时样式 -->
+    <link rel="stylesheet" href="countdown.css">
 </head>
 <body>
     <!-- 统一顶部导航占位（由 top-nav.js 动态注入） -->
@@ -487,13 +489,20 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
+            <!-- 高考倒计时模块（紧凑版，置于主标题上方） -->
+        <section id="gaokao-countdown" class="countdown-section embedded-dark" aria-label="高考倒计时" style="margin-bottom:8px;">
+              <h1 class="title" id="countdown-title">2026年高考倒计时</h1>
+              <div id="countdown-timer" aria-live="polite" aria-atomic="true"></div>
+              <p class="subtitle">光影绘梦，斓彩青春</p>
+            </section>
             <h1>发现你的大学气质</h1>
             <p class="subtitle">科学测评 · 精准匹配 · 个性推荐</p>
             <p class="description">
                 通过专业的气质测评，为你推荐最适合的大学类型。
-                每个人都有独特的学习风格和兴趣偏好，让我们帮你找到最匹配的教育环境。
+                每个人都独特的学习风格和兴趣偏好，让我们帮你找到最匹配的教育环境。
             </p>
             <a href="#" class="cta-button" id="startQuizBtn">开始测评</a>
+            <a href="recommend.html" class="cta-button" id="inputMbtiBtn" style="margin-left:12px;">输入我的MBTI</a>
         </div>
     </section>
 
@@ -580,11 +589,11 @@
 
         // 跳转到测评页面
         function navigateToQuiz() {
-            // 检查测评页面是否存在
+            // 跳转到新的 MBTI 测评页
             if (window.location.pathname.includes('huilanweb')) {
-                window.location.href = '/huilanweb/assessment.html';
+                window.location.href = '/huilanweb/mbti.html';
             } else {
-                window.location.href = '/assessment.html';
+                window.location.href = '/mbti.html';
             }
         }
 
@@ -724,14 +733,30 @@
                 }
             } catch (error) {
                 console.error('加载气质类型失败:', error);
-                
-                // 显示错误状态
-                loadingState.style.display = 'none';
-                errorState.style.display = 'block';
-                errorState.innerHTML = `
-                    <p>加载失败: ${error.message}</p>
-                    <button onclick="loadMoodTypes()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">重试</button>
-                `;
+
+                // 前端自动降级：使用内置示例数据，保障页面可用
+                const fallbackMoodTypes = [
+                    { id: 1, slug: 'rational_creator', name: '理性创造型', short_desc: '逻辑思维强，善于创新', color: '#3B82F6', university_count: 0, user_count: 0 },
+                    { id: 2, slug: 'artistic_explorer', name: '文艺探索型', short_desc: '审美与表达并重，善于探索', color: '#EF4444', university_count: 0, user_count: 0 },
+                    { id: 3, slug: 'practical_achiever', name: '务实应用型', short_desc: '动手能力强，面向应用', color: '#10B981', university_count: 0, user_count: 0 },
+                    { id: 4, slug: 'social_connector', name: '社交领导型', short_desc: '善于沟通组织，凝聚团队', color: '#F59E0B', university_count: 0, user_count: 0 }
+                ];
+
+                try {
+                    renderMoodTypes(fallbackMoodTypes);
+                    // 显示内容，隐藏加载与错误提示
+                    loadingState.style.display = 'none';
+                    errorState.style.display = 'none';
+                    moodGrid.style.display = 'grid';
+                } catch (e) {
+                    // 若前端渲染仍失败，显示错误提示
+                    loadingState.style.display = 'none';
+                    errorState.style.display = 'block';
+                    errorState.innerHTML = `
+                        <p>加载失败: ${error.message}</p>
+                        <button onclick="loadMoodTypes()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">重试</button>
+                    `;
+                }
             }
         }
 
@@ -796,15 +821,17 @@
         });
 
         // 页面可见性变化处理
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) {
-                // 页面重新可见时，可以刷新数据
-                console.log('页面重新可见');
-            }
-        });
-    </script>
-    <!-- 统一顶部导航脚本 -->
-    <script src="top-nav.js"></script>
-    <script src="site-footer.js"></script>
-</body>
-</html>
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            // 页面重新可见时，可以刷新数据
+            console.log('页面重新可见');
+        }
+    });
+  </script>
+  <!-- 统一顶部导航脚本 -->
+  <!-- 高考倒计时脚本 -->
+  <script src="countdown.js"></script>
+  <script src="top-nav.js"></script>
+  <script src="site-footer.js"></script>
+  </body>
+  </html>

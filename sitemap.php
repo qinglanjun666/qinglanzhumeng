@@ -14,6 +14,7 @@ $staticPages = [
     '/search.html',
     '/mood-map.html',
     '/assessment.html',
+    '/leaderboard.html',
 ];
 foreach ($staticPages as $p) {
     $urls[] = [ 'loc' => $baseUrl . $p, 'changefreq' => 'weekly', 'priority' => '0.8' ];

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>绘斓网 - 大学气质测评</title>
+    <title>青蓝君 - 大学气质测评</title>
     <style>
         * {
             margin: 0;
@@ -393,6 +393,13 @@
             margin-top: 30px;
         }
 
+        /* MBTI 选项列表 */
+        .mbti-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
+        .mbti-item { background:#f8f9fa; border:1px solid #e9ecef; border-radius: 12px; padding: 14px; text-align:center; cursor:pointer; transition: all .2s ease; font-weight:600; }
+        .mbti-item:hover { background:#f0f4ff; border-color:#667eea; transform: translateY(-2px); }
+        .mbti-item .sub { display:block; font-size:.85em; color:#666; font-weight:400; margin-top:.25rem; }
+        @media (max-width: 480px) { .mbti-grid { grid-template-columns: repeat(2, 1fr); } }
+
         /* 响应式设计 */
         @media (max-width: 768px) {
             .assessment-container {
@@ -536,6 +543,29 @@
         </div>
 
         <div class="content">
+            <!-- 列出所有 MBTI 选项，点击后进入该类型学校推荐页 -->
+            <section aria-label="MBTI 类型列表" style="margin:0 0 24px 0;padding:16px;background:#fff;border:1px solid #e9ecef;border-radius:12px;">
+                <h3 style="margin:0 0 12px 0;color:#333;font-weight:600;">选择你的 MBTI 类型</h3>
+                <div class="mbti-grid" id="mbtiList">
+                    <div class="mbti-item" data-type="INTJ">INTJ<span class="sub">战略型</span></div>
+                    <div class="mbti-item" data-type="INTP">INTP<span class="sub">思辨型</span></div>
+                    <div class="mbti-item" data-type="INFJ">INFJ<span class="sub">洞察型</span></div>
+                    <div class="mbti-item" data-type="INFP">INFP<span class="sub">理想型</span></div>
+                    <div class="mbti-item" data-type="ISTJ">ISTJ<span class="sub">稳重型</span></div>
+                    <div class="mbti-item" data-type="ISTP">ISTP<span class="sub">实干型</span></div>
+                    <div class="mbti-item" data-type="ISFJ">ISFJ<span class="sub">守护型</span></div>
+                    <div class="mbti-item" data-type="ISFP">ISFP<span class="sub">温柔型</span></div>
+                    <div class="mbti-item" data-type="ENTJ">ENTJ<span class="sub">统帅型</span></div>
+                    <div class="mbti-item" data-type="ENTP">ENTP<span class="sub">创新型</span></div>
+                    <div class="mbti-item" data-type="ENFJ">ENFJ<span class="sub">领导型</span></div>
+                    <div class="mbti-item" data-type="ENFP">ENFP<span class="sub">创意型</span></div>
+                    <div class="mbti-item" data-type="ESTJ">ESTJ<span class="sub">管理型</span></div>
+                    <div class="mbti-item" data-type="ESTP">ESTP<span class="sub">行动型</span></div>
+                    <div class="mbti-item" data-type="ESFJ">ESFJ<span class="sub">关怀型</span></div>
+                    <div class="mbti-item" data-type="ESFP">ESFP<span class="sub">活力型</span></div>
+                </div>
+            </section>
+            <!-- （已移除）MBTI 快捷输入入口 -->
             <!-- 问题页面 -->
             <div id="questionsContainer"></div>
 
@@ -602,7 +632,23 @@
 
         // 初始化
         document.addEventListener('DOMContentLoaded', function() {
-            loadQuestions();
+            // 仅展示 MBTI 选项列表，点击跳转推荐页
+            const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+            const list = document.getElementById('mbtiList');
+            if (list) {
+                list.querySelectorAll('.mbti-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const type = (item.getAttribute('data-type') || '').toUpperCase();
+                        if (!/^[EI][NS][TF][JP]$/.test(type)) return;
+                        window.location.href = `${base}/recommend.html?mbti=${encodeURIComponent(type)}`;
+                    });
+                });
+            }
+            // 不加载题库与问答流程
+            const qc = document.getElementById('questionsContainer');
+            if (qc) qc.style.display = 'none';
+            const pb = document.getElementById('progressFill');
+            if (pb) pb.style.width = '0%';
         });
 
         // 加载题目
