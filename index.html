@@ -501,52 +501,18 @@
                 通过专业的气质测评，为你推荐最适合的大学类型。
                 每个人都独特的学习风格和兴趣偏好，让我们帮你找到最匹配的教育环境。
             </p>
-            <a href="#" class="cta-button" id="startQuizBtn">开始测评</a>
-            <a href="recommend.html" class="cta-button" id="inputMbtiBtn" style="margin-left:12px;">输入我的MBTI</a>
+            <a href="/mbti/home.php" class="cta-button" id="startQuizBtn">开始测评</a>
+            <a href="/assessment.html" class="cta-button" id="inputMbtiBtn" style="margin-left:12px;">选择我的MBTI</a>
         </div>
     </section>
 
     <!-- Search Section 已移除 -->
 
-    <!-- Mood Types Section -->
-    <section class="mood-types">
-        <div class="container">
-            <h2 class="section-title">气质类型</h2>
-            <p class="section-subtitle">
-                每种气质类型都有其独特的特征和适合的大学环境，点击了解更多详情
-            </p>
-            
-            <!-- Loading State -->
-            <div id="loadingState" class="loading">
-                <div class="spinner"></div>
-                <p>正在加载气质类型数据...</p>
-            </div>
+    <!-- Mood Types Section 已删除 -->
+    <!-- Recommendations Section 已删除 -->
 
-            <!-- Error State -->
-            <div id="errorState" class="error-message" style="display: none;">
-                <p>加载失败，请刷新页面重试</p>
-            </div>
-
-            <!-- Mood Cards Grid -->
-            <div class="mood-grid" id="moodGrid" style="display: none;">
-                <!-- 气质卡片将通过JavaScript动态生成 -->
-            </div>
-        </div>
-    </section>
-
-    <!-- Recommendations Section -->
-    <section class="recommendations">
-        <div class="container">
-            <h2 class="section-title">今日推荐</h2>
-            <p class="section-subtitle">每日精选 6 所院校，供你快速了解</p>
-            <div id="recLoading" class="loading">
-                <div class="spinner"></div>
-                <p>正在加载推荐数据...</p>
-            </div>
-            <div id="recError" class="error-message" style="display:none;"></div>
-            <div id="recGrid" class="rec-grid" style="display:none;"></div>
-        </div>
-    </section>
+    <!-- MBTI 入口模块 -->
+    <section class="container" id="mbtiEntryContainer"></section>
 
     <!-- 统一站点底部占位（由 site-footer.js 注入） -->
     <div id="site-footer"></div>
@@ -560,8 +526,7 @@
         // 初始化页面
         function initializePage() {
             setupEventListeners();
-            loadMoodTypes();
-            loadRecommendations();
+            loadMbtiEntry();
         }
 
         // 设置事件监听器
@@ -589,12 +554,19 @@
 
         // 跳转到测评页面
         function navigateToQuiz() {
-            // 跳转到新的 MBTI 测评页
-            if (window.location.pathname.includes('huilanweb')) {
-                window.location.href = '/huilanweb/mbti.html';
-            } else {
-                window.location.href = '/mbti.html';
-            }
+            const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+            window.location.href = `${base}/mbti/home.php`;
+        }
+
+        async function loadMbtiEntry(){
+            try {
+                const base = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+                const r = await fetch(`${base}/components/mbti_entry.php`, { headers: { 'X-Requested-With':'XMLHttpRequest' } });
+                if (!r.ok) return;
+                const html = await r.text();
+                const box = document.getElementById('mbtiEntryContainer');
+                if (box) { box.innerHTML = html; }
+            } catch {}
         }
 
         // 搜索模块已移除

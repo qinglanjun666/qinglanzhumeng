@@ -3,7 +3,7 @@
   const BASE_PATH = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
 
 const style = `
-.hj-footer { background:#4f79ff; color:#ffffff; border-top:1px solid rgba(255,255,255,.15); }
+.hj-footer { background:var(--brand-color, #4f79ff); color:#ffffff; border-top:1px solid rgba(255,255,255,.15); }
 .hj-footer .wrap { max-width:1200px; margin:0 auto; padding:20px 16px; display:grid; gap:12px; }
 .hj-footer .links { display:flex; gap:14px; flex-wrap:wrap; }
 .hj-footer a { color:#f5f7ff; text-decoration:none; opacity:.95; }
@@ -33,7 +33,7 @@ const style = `
         <div class="legal">
           使用本网站即表示您同意《使用条款》与《隐私政策》。本网站内容仅供参考，不构成法律、学术或招生建议；因使用产生的风险由您自行承担。更多细则与责任限制，请参见《免责声明》。
         </div>
-        <div class="meta">© 2024 青蓝君</div>
+        <div class="meta">© 2024 <span id="footerBrand">青蓝君</span></div>
       </div>`;
     return f;
   }
@@ -48,6 +48,17 @@ const style = `
     } else {
       document.body.appendChild(footer);
     }
+    try {
+      const url = `${BASE_PATH}/data/site_config.json`;
+      fetch(url).then(r => r.ok ? r.json() : null).then(cfg => {
+        if (cfg && cfg.styles && cfg.styles.brandColor) {
+          document.documentElement.style.setProperty('--brand-color', cfg.styles.brandColor);
+        }
+        const brandName = cfg && cfg.layout && cfg.layout.header && cfg.layout.header.brandName;
+        const el = document.getElementById('footerBrand');
+        if (brandName && el) el.textContent = brandName;
+      }).catch(() => {});
+    } catch {}
   }
 
   if (document.readyState === 'loading') {

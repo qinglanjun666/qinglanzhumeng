@@ -1,162 +1,125 @@
 [
-  {
-    "id": 1,
-    "question": "你更喜欢哪种聚会？",
-    "options": [
-      {"text": "热闹的大型聚会", "value": "E"},
-      {"text": "小圈子的深度交流", "value": "I"}
-    ]
-  },
-  {
-    "id": 2,
-    "question": "遇到新环境，你通常？",
-    "options": [
-      {"text": "主动结识新朋友", "value": "E"},
-      {"text": "观察一阵再行动", "value": "I"}
-    ]
-  },
-  {
-    "id": 3,
-    "question": "假期你更愿意？",
-    "options": [
-      {"text": "和朋友一起出游", "value": "E"},
-      {"text": "在家独处充电", "value": "I"}
-    ]
-  },
-  {
-    "id": 4,
-    "question": "工作中你更倾向于？",
-    "options": [
-      {"text": "团队合作", "value": "E"},
-      {"text": "独立完成任务", "value": "I"}
-    ]
-  },
-  {
-    "id": 5,
-    "question": "你觉得自己更擅长？",
-    "options": [
-      {"text": "公开表达观点", "value": "E"},
-      {"text": "私下交流想法", "value": "I"}
-    ]
-  },
-  {
-    "id": 6,
-    "question": "你更关注？",
-    "options": [
-      {"text": "未来的可能性", "value": "N"},
-      {"text": "现实的细节", "value": "S"}
-    ]
-  },
-  {
-    "id": 7,
-    "question": "做决定时你更依赖？",
-    "options": [
-      {"text": "灵感和直觉", "value": "N"},
-      {"text": "事实和经验", "value": "S"}
-    ]
-  },
-  {
-    "id": 8,
-    "question": "你喜欢的故事类型？",
-    "options": [
-      {"text": "奇幻、科幻", "value": "N"},
-      {"text": "真实、纪实", "value": "S"}
-    ]
-  },
-  {
-    "id": 9,
-    "question": "你更容易记住？",
-    "options": [
-      {"text": "概念和理论", "value": "N"},
-      {"text": "具体细节和数据", "value": "S"}
-    ]
-  },
-  {
-    "id": 10,
-    "question": "你解决问题时？",
-    "options": [
-      {"text": "喜欢创新方法", "value": "N"},
-      {"text": "喜欢传统方案", "value": "S"}
-    ]
-  },
-  {
-    "id": 11,
-    "question": "你更看重？",
-    "options": [
-      {"text": "逻辑和分析", "value": "T"},
-      {"text": "感受和关系", "value": "F"}
-    ]
-  },
-  {
-    "id": 12,
-    "question": "遇到冲突时？",
-    "options": [
-      {"text": "讲道理解决", "value": "T"},
-      {"text": "体谅对方感受", "value": "F"}
-    ]
-  },
-  {
-    "id": 13,
-    "question": "你更容易被说服？",
-    "options": [
-      {"text": "有理有据的观点", "value": "T"},
-      {"text": "真诚的情感表达", "value": "F"}
-    ]
-  },
-  {
-    "id": 14,
-    "question": "你在团队中？",
-    "options": [
-      {"text": "负责决策和规划", "value": "T"},
-      {"text": "负责关怀和协调", "value": "F"}
-    ]
-  },
-  {
-    "id": 15,
-    "question": "你觉得成功的标准是？",
-    "options": [
-      {"text": "达成目标", "value": "T"},
-      {"text": "让大家满意", "value": "F"}
-    ]
-  },
-  {
-    "id": 16,
-    "question": "你的日程安排？",
-    "options": [
-      {"text": "喜欢提前规划", "value": "J"},
-      {"text": "随遇而安", "value": "P"}
-    ]
-  },
-  {
-    "id": 17,
-    "question": "工作方式？",
-    "options": [
-      {"text": "有条理按计划", "value": "J"},
-      {"text": "灵活应变", "value": "P"}
-    ]
-  },
-  {
-    "id": 18,
-    "question": "你更喜欢？",
-    "options": [
-      {"text": "明确的规则和流程", "value": "J"},
-      {"text": "自由发挥和探索", "value": "P"}
-    ]
-  },
-  {
-    "id": 19,
-    "question": "你处理突发事件时？",
-    "options": [
-      {"text": "先制定方案再行动", "value": "J"},
-      {"text": "边做边调整", "value": "P"}
-    ]
-  },
-  {
-    "id": 20,
-    "question": "你觉得生活更有趣的是？",
-    "options": [
-      {"text": "计划中的成就感", "value": "J"},
-      {"text": "意外的惊喜", "value": "P"}
-    ]
-  }
+  { "id": 1, "dimension": "EI", "question": "你在陌生环境中会主动与人交谈。" },
+  { "id": 2, "dimension": "EI", "question": "参加社交活动会让你感到充满能量。" },
+  { "id": 3, "dimension": "EI", "question": "你在团队讨论中通常是主要发言者。" },
+  { "id": 4, "dimension": "EI", "question": "你更喜欢和他人一起解决问题，而不是独立思考。" },
+  { "id": 5, "dimension": "EI", "question": "认识新朋友让你感到兴奋。" },
+  { "id": 6, "dimension": "EI", "question": "你愿意在场合中站到聚光灯下。" },
+  { "id": 7, "dimension": "EI", "question": "长时间独处会让你感到被耗尽。" },
+  { "id": 8, "dimension": "EI", "question": "你会在想好之前就先把话说出来。" },
+  { "id": 9, "dimension": "EI", "question": "你愿意主动加入他人的对话。" },
+  { "id": 10, "dimension": "EI", "question": "你喜欢热闹的环境。" },
+  { "id": 11, "dimension": "EI", "question": "你倾向和人密切合作而不是独自完成任务。" },
+  { "id": 12, "dimension": "EI", "question": "聚会结束后你仍然感到精力充沛。" },
+  { "id": 13, "dimension": "EI", "question": "你喜欢组织活动。" },
+  { "id": 14, "dimension": "EI", "question": "你容易与陌生人建立连接。" },
+  { "id": 15, "dimension": "EI", "question": "在表达观点时你毫不犹豫。" },
+  { "id": 16, "dimension": "EI", "question": "你比起倾听，更习惯表达。" },
+  { "id": 17, "dimension": "EI", "question": "你喜欢主动认识不同类型的人。" },
+  { "id": 18, "dimension": "EI", "question": "你在社交场合中通常很放松。" },
+  { "id": 19, "dimension": "EI", "question": "你很难长期处于低社交状态。" },
+  { "id": 20, "dimension": "EI", "question": "你依赖外界刺激而非内部思考。" },
+  { "id": 21, "dimension": "EI", "question": "你喜欢被关注而不感到压力。" },
+  { "id": 22, "dimension": "EI", "question": "你会主动安排社交活动。" },
+  { "id": 23, "dimension": "EI", "question": "你面对很多人讲话不紧张。" },
+  { "id": 24, "dimension": "EI", "question": "你更喜欢外出而不是待在家。" },
+  { "id": 25, "dimension": "EI", "question": "你喜欢参与热烈讨论。" },
+  { "id": 26, "dimension": "EI", "question": "你享受多人合作的氛围。" },
+  { "id": 27, "dimension": "EI", "question": "对你而言，与人交流比独处更容易。" },
+  { "id": 28, "dimension": "EI", "question": "你倾向主动发起话题。" },
+  { "id": 29, "dimension": "EI", "question": "你面对沉默感到不舒服。" },
+  { "id": 30, "dimension": "EI", "question": "和朋友在一起让你恢复能量。" },
+
+  { "id": 31, "dimension": "SN", "question": "你更信任具体事实，而不是抽象想法。" },
+  { "id": 32, "dimension": "SN", "question": "你更喜欢有明确步骤的任务。" },
+  { "id": 33, "dimension": "SN", "question": "在做决定时，你更依赖经验。" },
+  { "id": 34, "dimension": "SN", "question": "你更关注细节而非全局。" },
+  { "id": 35, "dimension": "SN", "question": "你倾向按部就班处理问题。" },
+  { "id": 36, "dimension": "SN", "question": "你不喜欢模糊描述。" },
+  { "id": 37, "dimension": "SN", "question": "你认为实践比理论更可靠。" },
+  { "id": 38, "dimension": "SN", "question": "你做事习惯逐步推进。" },
+  { "id": 39, "dimension": "SN", "question": "你关注现实而不是未来可能性。" },
+  { "id": 40, "dimension": "SN", "question": "宏大的设想让你不适应。" },
+  { "id": 41, "dimension": "SN", "question": "你喜欢明确且具体的指导。" },
+  { "id": 42, "dimension": "SN", "question": "你依赖过去经验判断问题。" },
+  { "id": 43, "dimension": "SN", "question": "抽象概念对你吸引力不大。" },
+  { "id": 44, "dimension": "SN", "question": "你做事讲究实际效果。" },
+  { "id": 45, "dimension": "SN", "question": "你关注现象而不是本质。" },
+  { "id": 46, "dimension": "SN", "question": "不确定的理论让你不安心。" },
+  { "id": 47, "dimension": "SN", "question": "你喜欢传统、已验证的方法。" },
+  { "id": 48, "dimension": "SN", "question": "你享受真实可触的体验。" },
+  { "id": 49, "dimension": "SN", "question": "你不喜欢跳跃式思考。" },
+  { "id": 50, "dimension": "SN", "question": "你偏好具体表达方式。" },
+  { "id": 51, "dimension": "SN", "question": "你习惯使用已知流程处理任务。" },
+  { "id": 52, "dimension": "SN", "question": "你做事注重可靠性。" },
+  { "id": 53, "dimension": "SN", "question": "你对象征和隐喻不感兴趣。" },
+  { "id": 54, "dimension": "SN", "question": "你信任通过观察获得的信息。" },
+  { "id": 55, "dimension": "SN", "question": "你喜欢稳妥、可控的内容。" },
+  { "id": 56, "dimension": "SN", "question": "你经常以事实为依据。" },
+  { "id": 57, "dimension": "SN", "question": "你倾向精确描述，而非意象化表达。" },
+  { "id": 58, "dimension": "SN", "question": "你觉得理论推导很枯燥。" },
+  { "id": 59, "dimension": "SN", "question": "你不喜欢开放式概念。" },
+  { "id": 60, "dimension": "SN", "question": "你更重视具体结果而不是抽象可能性。" },
+
+  { "id": 61, "dimension": "TF", "question": "你在争论时优先看逻辑而非情绪。" },
+  { "id": 62, "dimension": "TF", "question": "你做决定很少考虑别人感受。" },
+  { "id": 63, "dimension": "TF", "question": "你相信事实比情绪更重要。" },
+  { "id": 64, "dimension": "TF", "question": "你给建议更注重现实可行性。" },
+  { "id": 65, "dimension": "TF", "question": "你能直接指出问题。" },
+  { "id": 66, "dimension": "TF", "question": "原则比关系更重要。" },
+  { "id": 67, "dimension": "TF", "question": "你更注重对错而不是感受。" },
+  { "id": 68, "dimension": "TF", "question": "你认为公平比和谐更重要。" },
+  { "id": 69, "dimension": "TF", "question": "冲突中你能保持理性。" },
+  { "id": 70, "dimension": "TF", "question": "你不擅长处理情绪问题。" },
+  { "id": 71, "dimension": "TF", "question": "你对逻辑一致性很敏感。" },
+  { "id": 72, "dimension": "TF", "question": "你喜欢分析而不是共情。" },
+  { "id": 73, "dimension": "TF", "question": "你在决策时更依赖头脑。" },
+  { "id": 74, "dimension": "TF", "question": "你认为情绪会干扰判断。" },
+  { "id": 75, "dimension": "TF", "question": "你不喜欢过度情绪化的人。" },
+  { "id": 76, "dimension": "TF", "question": "你重视效率而不是情绪舒适。" },
+  { "id": 77, "dimension": "TF", "question": "你愿意说真话即使会伤害他人。" },
+  { "id": 78, "dimension": "TF", "question": "你不喜欢处理敏感话题。" },
+  { "id": 79, "dimension": "TF", "question": "你在冲突中追求事实真相。" },
+  { "id": 80, "dimension": "TF", "question": "你倾向于客观评价他人。" },
+  { "id": 81, "dimension": "TF", "question": "你认为任务比人际更优先。" },
+  { "id": 82, "dimension": "TF", "question": "你认为规则应超过情感。" },
+  { "id": 83, "dimension": "TF", "question": "你更关注结构而不是氛围。" },
+  { "id": 84, "dimension": "TF", "question": "你喜欢理性对话而非情绪表达。" },
+  { "id": 85, "dimension": "TF", "question": "你经常忽略他人的情绪信号。" },
+  { "id": 86, "dimension": "TF", "question": "你做事遵循标准流程。" },
+  { "id": 87, "dimension": "TF", "question": "你不理解情绪化行为的必要性。" },
+  { "id": 88, "dimension": "TF", "question": "你认为人应该控制情绪。" },
+  { "id": 89, "dimension": "TF", "question": "你认为逻辑才是最可靠方式。" },
+  { "id": 90, "dimension": "TF", "question": "你喜欢通过分析解决矛盾。" },
+
+  { "id": 91, "dimension": "JP", "question": "你喜欢按计划做事，不喜欢变动。" },
+  { "id": 92, "dimension": "JP", "question": "你倾向提前完成任务。" },
+  { "id": 93, "dimension": "JP", "question": "你喜欢结构化的日程。" },
+  { "id": 94, "dimension": "JP", "question": "你讨厌没有结论的事情。" },
+  { "id": 95, "dimension": "JP", "question": "你会先整理环境再工作。" },
+  { "id": 96, "dimension": "JP", "question": "你喜欢稳定多于变化。" },
+  { "id": 97, "dimension": "JP", "question": "你对拖延敏感。" },
+  { "id": 98, "dimension": "JP", "question": "完成任务能带来轻松。" },
+  { "id": 99, "dimension": "JP", "question": "你倾向快速做决定。" },
+  { "id": 100, "dimension": "JP", "question": "你不喜欢太随性的生活。" },
+  { "id": 101, "dimension": "JP", "question": "你喜欢制定计划并执行。" },
+  { "id": 102, "dimension": "JP", "question": "你喜欢清晰规则。" },
+  { "id": 103, "dimension": "JP", "question": "你喜欢按步骤完成任务。" },
+  { "id": 104, "dimension": "JP", "question": "混乱让你效率下降。" },
+  { "id": 105, "dimension": "JP", "question": "你很少犹豫。" },
+  { "id": 106, "dimension": "JP", "question": "临时任务会影响你心情。" },
+  { "id": 107, "dimension": "JP", "question": "你对变通不感兴趣。" },
+  { "id": 108, "dimension": "JP", "question": "你喜欢固定生活模式。" },
+  { "id": 109, "dimension": "JP", "question": "你喜欢维持秩序。" },
+  { "id": 110, "dimension": "JP", "question": "你习惯提前规划未来。" },
+  { "id": 111, "dimension": "JP", "question": "你不喜欢突发状况。" },
+  { "id": 112, "dimension": "JP", "question": "你依赖手册或说明书。" },
+  { "id": 113, "dimension": "JP", "question": "你希望事情可预期。" },
+  { "id": 114, "dimension": "JP", "question": "你喜欢明确截止时间。" },
+  { "id": 115, "dimension": "JP", "question": "你经常制定长期目标。" },
+  { "id": 116, "dimension": "JP", "question": "你讨厌未完成的事项。" },
+  { "id": 117, "dimension": "JP", "question": "你喜欢收尾后再开始新事。" },
+  { "id": 118, "dimension": "JP", "question": "你不喜欢混乱的工作方式。" },
+  { "id": 119, "dimension": "JP", "question": "你偏向一次做完一件事。" },
+  { "id": 120, "dimension": "JP", "question": "你喜欢提前知道流程。" }
 ]

@@ -1,0 +1,31 @@
+{
+  "layout": {
+    "header": {
+      "brandName": "绘斓",
+      "logo": "",
+      "navItems": [
+        { "href": "/huilanweb/index.html", "text": "首页", "key": "index.html" },
+        { "href": "/huilanweb/assessment.html", "text": "测评", "key": "assessment.html" },
+        { "href": "/huilanweb/mbti.html", "text": "MBTI测评", "key": "mbti.html" },
+        { "href": "/huilanweb/mood-map.html", "text": "大学图谱", "key": "mood-map.html" },
+        { "href": "/huilanweb/leaderboard.html", "text": "人格榜单", "key": "leaderboard.html" }
+      ],
+      "actions": ["Login", "Sign Up"]
+    }
+  },
+  "styles": {
+    "brandColor": "#1E40FF",
+    "font": {
+      "heading": "Inter, Noto Sans SC, sans-serif",
+      "body": "Noto Sans SC, Inter, sans-serif"
+    },
+    "breakpoints": {
+      "mobile": 768,
+      "tablet": 1024
+    }
+  },
+  "accessibility": {
+    "altText": "required",
+    "contrastRatio": 4.5
+  }
+}

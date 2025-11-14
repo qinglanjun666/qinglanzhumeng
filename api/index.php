@@ -154,6 +154,23 @@ switch ($path_parts[0]) {
         }
         break;
     
+    case 'mbti':
+        if (isset($path_parts[1]) && $path_parts[1] === 'questions.php') {
+            include_once 'mbti/questions.php';
+        } elseif (isset($path_parts[1]) && $path_parts[1] === 'submit.php') {
+            include_once 'mbti/submit.php';
+        } else {
+            http_response_code(404);
+            echo json_encode(array(
+                "message" => "MBTI endpoint not found",
+                "available_endpoints" => array(
+                    "GET /api/mbti/questions.php" => "获取题库",
+                    "POST /api/mbti/submit.php" => "提交答案并计算类型"
+                )
+            ));
+        }
+        break;
+    
     default:
         http_response_code(404);
         echo json_encode(array(
