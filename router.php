@@ -38,6 +38,14 @@ if ($uri === '/mbti/select') {
     header('Location: /assessment.html', true, 302);
     exit;
 }
+if ($uri === '/mbti') {
+    header('Location: /mbti/index.html', true, 302);
+    exit;
+}
+if ($uri === '/mbti/result') {
+    header('Location: /mbti/result.html', true, 302);
+    exit;
+}
 
 if ($uri === '/legal/privacy') {
     header('Location: /privacy.html', true, 302);
