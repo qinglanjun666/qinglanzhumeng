@@ -43,7 +43,12 @@ if ($uri === '/mbti') {
     exit;
 }
 if ($uri === '/mbti/result') {
-    header('Location: /mbti/result.html', true, 302);
+    header('Location: /mbti/result.php', true, 302);
+    exit;
+}
+
+if ($uri === '/welcome') {
+    header('Location: /universities.html', true, 302);
     exit;
 }
 
@@ -59,6 +64,11 @@ if ($uri === '/legal/terms') {
 
 if ($uri === '/legal/disclaimer') {
     header('Location: /disclaimer.html', true, 302);
+    exit;
+}
+
+if (preg_match('#^/welcome/.+$#', $uri)) {
+    header('Location: /universities.html', true, 302);
     exit;
 }
 

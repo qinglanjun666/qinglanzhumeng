@@ -87,13 +87,15 @@
     function showError(msg){ errorMsg.textContent = msg || '请求失败'; errorModal.classList.add('show'); }
     errorOk.addEventListener('click',()=>{ errorModal.classList.remove('show'); });
 
+    const BASE = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+
     async function loadQuestions(){
       loadingEl.style.display = 'flex';
       questionsEl.style.display = 'none';
       submitBtn.disabled = true;
       statusEl.textContent = '未提交';
       try {
-        const r = await fetch('/api/mbti/questions.php', { method:'GET' });
+        const r = await fetch(BASE + '/api/mbti/questions.php', { method:'GET' });
         if (!r.ok) throw new Error('题库接口返回异常 ' + r.status);
         const data = await r.json();
         if (!Array.isArray(data) || data.length === 0) throw new Error('题库为空');
@@ -150,7 +152,7 @@
           const val = sel ? parseInt(sel.value,10) : 0;
           answers[id] = val;
         });
-        const r = await fetch('/api/mbti/submit.php', {
+        const r = await fetch(BASE + '/api/mbti/submit.php', {
           method:'POST',
           headers: { 'Content-Type':'application/json' },
           body: JSON.stringify({ answers })
@@ -159,7 +161,8 @@
         const data = await r.json();
         if (!data || !data.type) throw new Error('返回数据缺少类型');
         statusEl.textContent = '已计算类型 ' + data.type;
-        window.location.href = '/mbti/result.php?type=' + encodeURIComponent(data.type);
+        const BASE = window.location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+        window.location.href = BASE + '/mbti/result?type=' + encodeURIComponent(data.type);
       } catch(e){
         showError(e.message);
         statusEl.textContent = '提交失败';

@@ -79,8 +79,8 @@
   <script>
     function getQueryType(){ const p=new URLSearchParams(location.search); const t=(p.get('type')||'').toUpperCase(); return /^[IE][SN][TF][JP]$/.test(t)?t:null; }
     function toVals(type){ const a=type.split(''); return [a[0]==='E'?100:0,a[1]==='S'?100:0,a[2]==='T'?100:0,a[3]==='J'?100:0]; }
-    async function loadLib(){ const r=await fetch('/data/mbti_types.json'); if(!r.ok) throw new Error('类型库失败'); return r.json(); }
-    async function genQR(type){ const r=await fetch('/mbti/generate_qr.php?type='+encodeURIComponent(type)); const j=await r.json(); if(!j||!j.url) throw new Error('二维码失败'); return j.url; }
+    async function loadLib(){ const BASE=location.pathname.includes('huilanweb')?'/huilanweb':''; const r=await fetch(BASE + '/data/mbti_types.json'); if(!r.ok) throw new Error('类型库失败'); return r.json(); }
+    async function genQR(type){ const BASE=location.pathname.includes('huilanweb')?'/huilanweb':''; const r=await fetch(BASE + '/mbti/generate_qr.php?type='+encodeURIComponent(type)); const j=await r.json(); if(!j||!j.url) throw new Error('二维码失败'); return j.url; }
     function drawChart(vals){ const ctx=document.getElementById('chart').getContext('2d'); new Chart(ctx,{ type:'radar', data:{ labels:['E/I','S/N','T/F','J/P'], datasets:[{ data:vals, backgroundColor:'rgba(30,64,255,0.22)', borderColor:'#1E40FF', pointBackgroundColor:'#1E40FF', pointBorderColor:'#fff' }] }, options:{ responsive:false, scales:{ r:{ beginAtZero:true, suggestedMax:100 } }, plugins:{ legend:{display:false} } } }); }
     (async function(){
       const type = getQueryType(); if(!type){ alert('缺少类型参数'); return; }
@@ -91,7 +91,7 @@
       document.getElementById('keywords').innerHTML = kw.map(k=>`<span class='kw'>${k}</span>`).join('');
       document.getElementById('careerDesc').textContent = item.description || '';
       document.getElementById('careerList').innerHTML = (item.careers||[]).slice(0,5).map(c=>`<li class='career'>${c}</li>`).join('');
-      const link = location.origin + '/mbti/result.php?type=' + type; document.getElementById('linkText').textContent = link;
+      const BASE = location.pathname.includes('huilanweb')?'/huilanweb':''; const link = location.origin + BASE + '/mbti/result?type=' + type; document.getElementById('linkText').textContent = link;
       const qr = await genQR(type); document.getElementById('qr').src = qr;
       document.getElementById('genBtn').addEventListener('click', async ()=>{
         const node = document.getElementById('stage');

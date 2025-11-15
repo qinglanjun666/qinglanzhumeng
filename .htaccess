@@ -26,6 +26,17 @@ RewriteRule ^legal/privacy$ privacy.html [QSA,L]
 RewriteRule ^legal/terms$ terms.html [QSA,L]
 RewriteRule ^legal/disclaimer$ disclaimer.html [QSA,L]
 
+# MBTI 友好路由
+RewriteRule ^mbti$ mbti/index.html [QSA,L]
+RewriteRule ^mbti/result$ mbti/result.php [QSA,L]
+RewriteRule ^mbti/select$ assessment.html [QSA,L]
+RewriteRule ^mbti/start$ mbti/test.php?page=1 [QSA,L]
+RewriteRule ^mbti/home$ mbti/home.php [QSA,L]
+
+# Welcome 频道路由
+RewriteRule ^welcome$ universities.html [QSA,L]
+RewriteRule ^welcome/.*$ universities.html [QSA,L]
+
 # 防止直接访问PHP文件
 <FilesMatch "^(database|config)\.php$">
     Order Allow,Deny

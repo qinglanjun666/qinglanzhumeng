@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>高校图谱 · 首页</title>
+  <style>
+    :root { --primary:#1E40FF; --text:#1A1A1A; --bg:#FFFFFF; --line:#e5e7eb; --muted:#64748b; }
+    html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family: Inter, Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, "PingFang SC", "Microsoft Yahei", sans-serif; }
+    .layout { display:grid; grid-template-columns: 220px 300px 1fr; gap:0; max-width: 1500px; margin:0 auto; padding: 18px; }
+    .app-side { background:#fff; padding:12px; position:sticky; top:18px; align-self:start; height:calc(100vh - 36px); overflow:auto; border:none; border-right:1px solid var(--line); border-radius:0; }
+    .dir-side { background:#fff; padding:12px; position:sticky; top:18px; align-self:start; height:calc(100vh - 36px); overflow:auto; border:none; border-right:1px solid var(--line); border-radius:0; }
+    .dir-header { display:flex; align-items:center; justify-content:space-between; padding:4px 4px 8px; }
+    .dir-header .label { font-weight:800; color:#0f172a; }
+    .dir-pin { display:inline-flex; align-items:center; gap:6px; color:#64748b; border:none; background:transparent; cursor:pointer; font-size:12px; }
+    .dir-pin:hover { color:#334155; }
+    .content { background:#fff; padding:0; border:none; border-radius:0; }
+    .content-inner { max-width: 980px; margin: 0 auto; padding: 18px 24px; display:grid; grid-template-columns: 1fr 240px; gap:24px; }
+    .content-main { min-width:0; }
+    .skeleton { background:linear-gradient(90deg,#f3f4f6,#eef2f7,#f3f4f6); animation: shimmer 1.6s infinite; }
+    @keyframes shimmer { 0% { background-position: -200px 0; } 100% { background-position: 200px 0; } }
+    .brand { display:flex; align-items:center; gap:10px; padding:8px 6px 14px; border-bottom:1px solid var(--line); margin-bottom:12px; }
+    .brand .logo { width:24px; height:24px; border-radius:6px; background:var(--primary); }
+    .brand .name { font-weight:800; }
+    .group { margin-bottom:12px; }
+    .create-btn { width:100%; display:flex; align-items:center; gap:8px; padding:10px 12px; border:1px solid var(--line); border-radius:0; background:#f8fafc; font-weight:700; cursor:pointer; }
+    .create-btn:hover { background:#eef2ff; border-color:#c7d2fe; }
+    .group-toggle { width:100%; display:flex; align-items:center; gap:8px; text-align:left; padding:10px 12px; border:1px solid var(--line); border-radius:0; background:#fff; font-weight:700; cursor:pointer; }
+    .group-toggle::after { content:""; float:right; width:0; height:0; margin-top:6px; border-left:6px solid transparent; border-right:6px solid transparent; border-top:6px solid #94a3b8; transition:transform .2s ease; }
+    .group-toggle[aria-expanded="true"]::after { transform:rotate(180deg); }
+    .items { padding:8px 6px; }
+    .item { display:flex; align-items:center; gap:8px; font-size:14px; line-height:1.8; padding:10px 16px; border-radius:0; color:#0f172a; cursor:pointer; border:1px solid transparent; transition:all .2s ease; }
+    .item::before { content:""; display:inline-block; flex-shrink:0; width:14px; height:14px; border-radius:4px; background:linear-gradient(135deg,#6EB5FF,#409EFF); box-shadow:0 1px 4px rgba(64,158,255,.25); }
+    .item:hover { background:#f6f8ff; border-color:#e5e9f5; }
+    .item.active { background:#eef2ff; border-color:#c7d2fe; color:#1f2937; font-weight:700; }
+    .sep { height:1px; background:var(--line); margin:10px 0; }
+    .dir-item { display:flex; align-items:center; gap:8px; font-size:14px; line-height:1.8; padding:10px 16px; border-radius:0; color:#334155; cursor:pointer; border:1px solid transparent; transition:all .2s ease; }
+    .dir-item::before { content:""; display:inline-block; flex-shrink:0; width:14px; height:14px; border-radius:4px; background:linear-gradient(135deg,#a78bfa,#6366f1); box-shadow:0 1px 4px rgba(99,102,241,.25); }
+    .dir-item:hover { background:#f6f8ff; border-color:#e5e9f5; }
+    .dir-item.active { background:#eef2ff; border-color:#c7d2fe; color:#1f2937; font-weight:700; border-left:3px solid var(--primary); }
+    .item .lucide, .dir-item .lucide, .group-toggle .lucide, .dir-group-title .lucide, .dir-link .lucide { width:16px; height:16px; color:#64748b; }
+    .article-toc { border-left:2px solid #e5e7eb; padding-left:12px; border-radius:2px; margin:10px 0 14px; }
+    .article-toc-item { display:block; padding:6px 0; font-size:14px; color:#64748b; text-decoration:none; }
+    .article-toc-item.active { color:var(--primary); font-weight:700; font-size:16px; }
+    .article-toc-rail { align-self:start; position:sticky; top:18px; }
+    .badge-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap:12px; margin:8px 0 16px; }
+    .badge { display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:12px; }
+    .badge .avatar { width:36px; height:36px; border-radius:999px; background:#eef2ff; color:var(--primary); font-weight:800; display:none; align-items:center; justify-content:center; }
+    .badge .avatar-img { width:36px; height:36px; border-radius:999px; object-fit:contain; background:#fff; border:1px solid var(--line); }
+    .badge .label { color:#0f172a; font-weight:700; }
+    .dir-group { margin-bottom:8px; }
+    .dir-group-title { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:8px 12px; border-radius:0; font-weight:700; color:#0f172a; cursor:pointer; }
+    .dir-group-title:hover { background:#f6f8ff; }
+    .dir-group-title .left { display:flex; align-items:center; gap:8px; }
+    .dir-group-title .chev { width:16px; height:16px; color:#94a3b8; transition:transform .2s ease; }
+    .dir-group-title[aria-expanded="true"] .chev { transform:rotate(180deg); }
+    .dir-subitems { padding:4px 0 0; }
+    .dir-link { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:14px; line-height:1.8; padding:6px 12px; border-radius:0; color:#334155; text-decoration:none; }
+    .dir-link:hover { background:#f5f7ff; }
+    .dir-link.active { background:#eef2ff; color:#1f2937; font-weight:600; }
+    .dir-sublist { padding:4px 0 0 18px; }
+    .hero-img { width:100%; height:180px; border-radius:0; border:1px solid var(--line); margin:8px 0 18px; }
+    .title { height:28px; border-radius:0; width:240px; }
+    .para { height:16px; border-radius:0; margin:8px 0; }
+    .bullet { height:12px; border-radius:0; width:60%; margin:8px 0; }
+    .section { border-top:1px solid var(--line); padding-top:18px; margin-top:18px; }
+    @media (max-width: 1200px){ .layout { grid-template-columns: 220px 1fr; } .dir-side { display:none; } .content-inner { grid-template-columns: 1fr; } .article-toc-rail { display:none; } }
+    @media (max-width: 768px){ .layout { grid-template-columns: 1fr; } .app-side, .dir-side { display:none; } .content { padding:16px; } .content-inner { grid-template-columns: 1fr; } .article-toc-rail { display:none; } }
+  </style>
+</head>
+<body>
+  <div id="top-nav"></div>
+  <div class="layout" aria-label="Atlas Layout">
+    <aside class="app-side" aria-label="Global Sidebar">
+      <div class="brand"><div class="logo" aria-hidden="true"></div><div class="name">网站名称</div></div>
+      <button class="create-btn"><i data-lucide="plus"></i> Create</button>
+      <div class="group" style="margin-top:10px;">
+        <button class="group-toggle" aria-expanded="true" aria-controls="g1"><i data-lucide="folder-tree"></i> 高校目录</button>
+        <div id="g1" class="items">
+          <div class="item"><i data-lucide="home"></i> 回到首页</div>
+          <div class="item" id="itemCN"><i data-lucide="building-2"></i> 国内高校</div>
+          <div class="item" id="itemHKMO"><i data-lucide="landmark"></i> 港澳学校</div>
+          <div class="item" id="itemOverseas"><i data-lucide="globe"></i> 海外名校</div>
+          <div class="item"><i data-lucide="star"></i> 最值得读的50所学校</div>
+        </div>
+      </div>
+      <div class="sep" aria-hidden="true"></div>
+      <div class="group">
+        <button class="group-toggle" aria-expanded="true" aria-controls="g2"><i data-lucide="life-buoy"></i> 帮助与加入</button>
+        <div id="g2" class="items">
+          <div class="item"><i data-lucide="help-circle"></i> 如何使用本站</div>
+          <div class="item"><i data-lucide="users"></i> 加入学习群</div>
+        </div>
+      </div>
+    </aside>
+    <aside class="dir-side" aria-label="Directory Sidebar">
+      <div class="dir-header"><div class="label">Directory</div><button class="dir-pin"><i data-lucide="pin-off"></i><span>unpin</span></button></div>
+      <div id="d1" class="items"></div>
+    </aside>
+    <article class="content" aria-label="Main Content">
+      <div class="content-inner">
+      <div class="content-main">
+        <div class="skeleton title" role="img" aria-label="page_title_placeholder"></div>
+        <div class="skeleton hero-img" role="img" aria-label="hero_image_placeholder"></div>
+        <div id="mobileDir" class="section" style="display:none" aria-label="Directory Mobile"></div>
+        <div id="mainContent" class="section" aria-label="Main Detail"></div>
+        <div class="section" aria-label="Overview">
+          <div class="skeleton para" aria-hidden="true"></div>
+          <div class="skeleton para" aria-hidden="true"></div>
+          <div class="skeleton para" aria-hidden="true"></div>
+        </div>
+        <div class="section" aria-label="Capabilities">
+          <div class="skeleton bullet" aria-hidden="true"></div>
+          <div class="skeleton bullet" aria-hidden="true"></div>
+          <div class="skeleton bullet" aria-hidden="true"></div>
+          <div class="skeleton bullet" aria-hidden="true"></div>
+          <div class="skeleton bullet" aria-hidden="true"></div>
+        </div>
+        <div class="section" aria-label="Explore">
+          <div class="skeleton para" aria-hidden="true"></div>
+          <div class="skeleton para" aria-hidden="true"></div>
+        </div>
+      </div>
+      <aside id="articleToc" class="article-toc-rail"></aside>
+      </div>
+    </article>
+  </div>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    document.addEventListener('click',function(e){
+      const t=e.target.closest('.group-toggle');
+      if(!t)return;
+      const exp=t.getAttribute('aria-expanded')==='true';
+      t.setAttribute('aria-expanded',exp?'false':'true');
+      const id=t.getAttribute('aria-controls');
+      const box=id&&document.getElementById(id);
+      if(!box)return;
+      box.style.display=exp?'none':'block';
+    });
+    document.addEventListener('DOMContentLoaded', function(){ if(window.lucide && typeof window.lucide.createIcons==='function'){ window.lucide.createIcons(); } });
+    (function(){ var current = location.pathname; var baseActive = document.querySelector('.item'); if(baseActive){ baseActive.classList.add('active'); } })();
+    function renderDir(list){
+      const d=document.getElementById('d1');
+      const makeHtml=(arr,depth)=>arr.map(function(x){
+        if(typeof x==='string'){ return '<a class="dir-link" href="#">'+x+'</a>'; }
+        if(x && x.g){
+          var titleLeft = '<span class="left"><i data-lucide="file-text"></i>'+x.g+'</span>';
+          var chev = '<i class="chev" data-lucide="chevron-down"></i>';
+          var inner = Array.isArray(x.items) ? makeHtml(x.items,(depth||0)+1) : '';
+          return '<div class="dir-group">\n            <div class="dir-group-title" aria-expanded="true">'+titleLeft+chev+'</div>\n            <div class="dir-subitems">'+inner+'</div>\n          </div>';
+        }
+        if(x && x.text){
+          var rightChev = x.items && x.items.length ? '<i data-lucide="chevron-down" class="chev"></i>' : '';
+          var inner2 = x.items && x.items.length ? '<div class="dir-sublist">'+makeHtml(x.items,(depth||0)+1)+'</div>' : '';
+          var href = x.href ? x.href : (x.route ? x.route : '#');
+          var toggleAttr = x.items ? 'data-toggle="true"' : '';
+          var scrollAttr = (href && href.indexOf('#')===0) ? 'data-scroll="true"' : '';
+          var routeAttr = x.route ? 'data-route="'+x.route+'"' : '';
+          return '<div class="dir-group">\n            <a class="dir-link" href="'+href+'" '+toggleAttr+' '+scrollAttr+' '+routeAttr+'>'+x.text+rightChev+'</a>'+inner2+'\n          </div>';
+        }
+        return '';
+      }).join('');
+      const html=makeHtml(list,0);
+      if(d){ d.innerHTML=html; d.style.display='block'; if(window.lucide){ window.lucide.createIcons(); } }
+      const side=document.querySelector('.dir-side');
+      const mobile=document.getElementById('mobileDir');
+      const hidden = side && window.getComputedStyle(side).display==='none';
+      if(mobile){ mobile.style.display = hidden ? 'block' : 'none'; mobile.innerHTML = hidden ? html : ''; if(window.lucide){ window.lucide.createIcons(); } }
+    }
+    document.addEventListener('click',function(e){
+      var title=e.target.closest('.dir-group-title');
+      if(title){ var exp=title.getAttribute('aria-expanded')==='true'; title.setAttribute('aria-expanded',exp?'false':'true'); var next=title.nextElementSibling; if(next){ next.style.display=exp?'none':'block'; } }
+      var link=e.target.closest('.dir-link[data-toggle="true"]');
+      if(link){ e.preventDefault(); var next=link.nextElementSibling; if(next){ var hidden=window.getComputedStyle(next).display==='none'; next.style.display= hidden? 'block':'none'; var chev=link.querySelector('.chev'); if(chev){ chev.style.transform = hidden? 'rotate(180deg)':'rotate(0deg)'; } }}
+      var scroll=e.target.closest('.dir-link[data-scroll="true"]');
+      if(scroll){
+        e.preventDefault();
+        var id = scroll.getAttribute('href').slice(1);
+        var el = id && document.getElementById(id);
+        if(el){
+          var nav = document.querySelector('.hj-top-nav');
+          var pad = nav ? nav.offsetHeight : 0;
+          var top = el.getBoundingClientRect().top + window.scrollY - pad - 8;
+          window.scrollTo({ top: top, behavior: 'smooth' });
+          document.querySelectorAll('.dir-link').forEach(function(a){ a.classList.remove('active'); });
+          scroll.classList.add('active');
+        }
+      }
+      var route=e.target.closest('.dir-link[data-route]');
+      if(route){
+        e.preventDefault();
+        var r = route.getAttribute('data-route') || '';
+        if(r.indexOf('/welcome/985')!==-1){ render985(); }
+        else if(r.indexOf('/welcome/211')!==-1){ render211(); }
+        document.querySelectorAll('.dir-link').forEach(function(a){ a.classList.remove('active'); });
+        route.classList.add('active');
+      }
+    });
+    var demoDir = [
+      { text: '什么是985', route: '/welcome/985' },
+      { text: '什么是211', route: '/welcome/211' },
+      { g: 'User Guide', items: [] },
+      { g: 'Coze overview', items: [
+        { text: 'What is Coze', href: '#985-bg' },
+        { text: 'Architecture', href: '#985-system' },
+        { text: 'Features', href: '#985-research' },
+        { text: 'Key terminology', href: '#985-talent' },
+        { text: 'Learning Resources', href: '#985-mission' },
+        { text: 'Help and support', href: '#985-competition' }
+      ] },
+      { g: 'Updates and announc…', items: [
+        { text: 'Release notes', href: '#985-challenges' },
+        { text: 'Model release notes', href: '#985-trends' },
+        { text: 'Official plugin release …', href: '#985-conclusion' }
+      ] },
+      { text: 'Resources' },
+      { text: 'Best practices' }
+    ];
+    renderDir(demoDir);
+    const BASE = location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+    function render985(){
+      const box=document.getElementById('mainContent');
+      if(!box)return;
+      box.innerHTML = '<h2 style="margin:0 0 10px; font-size:22px; font-weight:800;">什么是985</h2>'+
+        (function(){ var list=['北京大学','清华大学','中国人民大学','北京航空航天大学','北京理工大学','中国农业大学','北京师范大学','中央民族大学','南开大学','天津大学','大连理工大学','东北大学','吉林大学','哈尔滨工业大学','复旦大学','上海交通大学','同济大学','华东师范大学','南京大学','东南大学','浙江大学','中国科学技术大学','厦门大学','山东大学','中国海洋大学','武汉大学','华中科技大学','湖南大学','中南大学','国防科技大学','中山大学','华南理工大学','四川大学','电子科技大学','重庆大学','西安交通大学','西北工业大学','西北农林科技大学','兰州大学']; var html='<div class="badge-grid">'+list.map(function(n){ var src = BASE + '/assets/logos/' + n + '.png'; return '<div class="badge"><img class="avatar-img" src="'+src+'" alt="'+n+'"/><div class="avatar">'+n.slice(0,2)+'</div><div class="label">'+n+'</div></div>'; }).join('')+'</div>'; return html; })()+
+        '<h3 id="985-bg" style="margin:12px 0; font-size:18px; font-weight:700;">一、研究背景与意义</h3>'+
+        '<p style="color:#475569; line-height:1.8;">中国“985工程”启动于1998年5月，是国家高等教育体系中最高级别的重点建设序列，旨在建设若干所世界一流大学，以支撑国家创新体系构建、产业升级与全球竞争力提升。全国共有39所985高校，它们承担了中国60%以上的国家重大科研项目、70%的高水平论文产出、80%的战略科技人才培养任务。随着全球科技竞争加剧，国家提出“双一流2.0”建设目标，对985高校提出更高要求。本节从体系、科研、人才、产业、治理等维度，对中国985高校进行系统研究，为政府决策、高校规划、企业合作提供参考。</p>'+
+        '<h3 id="985-system" style="margin:12px 0; font-size:18px; font-weight:700;">二、985高校体系概述</h3>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">1. 数量与分布</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>总数：39所</li>'+
+          '<li>地域分布：东部22所、中部8所、西部9所</li>'+
+          '<li>城市分布：集中于北京、上海、南京、西安、武汉、成都六大教育中心城市</li>'+
+        '</ul>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">2. 学科类别划分（按优势学科）</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li><strong>综合研究型大学</strong> —— 代表：北京大学、清华大学、浙江大学、复旦大学、上海交通大学、武汉大学、中山大学；特征：学科齐全、科研顶尖、国际化程度高。</li>'+
+          '<li><strong>理工类强校</strong> —— 代表：哈尔滨工业大学、北京航空航天大学、南京航空航天大学、华中科技大学、东南大学、同济大学；特征：工程技术强，承担国防与关键核心技术研究。</li>'+
+          '<li><strong>理科学院校</strong> —— 代表：中国科学技术大学、南京大学；特征：基础研究突出，承担从0到1的原创性创新任务。</li>'+
+          '<li><strong>师范与农林类</strong> —— 代表：北京师范大学、华东师范大学、西北农林科技大学；特征：在教育科学、农学领域具国家战略地位。</li>'+
+          '<li><strong>区域龙头综合大学</strong> —— 代表：厦门大学、四川大学、山东大学、兰州大学等；特征：服务区域发展，承担地方科技任务。</li>'+
+        '</ul>'+
+        '<h3 id="985-research" style="margin:12px 0; font-size:18px; font-weight:700;">三、科研与创新能力对比</h3>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">1. 科研经费投入</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>清华、北大每年科研经费超过200–300亿元。</li>'+
+          '<li>华中科技大学、浙江大学、上海交通大学、复旦大学约100–200亿元。</li>'+
+          '<li>多数985高校在30–80亿元区间；985占全国高校科研经费总量超过50%。</li>'+
+        '</ul>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">2. 科研产出</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>Nature Index：清华、中国科大、北大长期排名国内前三。</li>'+
+          '<li>PCT国际专利：清华、浙大、华科排名靠前。</li>'+
+          '<li>国家重点实验室：985高校拥有超过70%的名额。</li>'+
+          '<li>两院院士：来自985的比例占高校总体的60%以上。</li>'+
+        '</ul>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">3. 科技成果应用</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>在材料、光刻、芯片、光通信、生物医药等“卡脖子”领域取得突破。</li>'+
+          '<li>多所学校自建科技园，如浙大科技园、清华科技园成为全国创新示范区。</li>'+
+        '</ul>'+
+        '<h3 id="985-talent" style="margin:12px 0; font-size:18px; font-weight:700;">四、人才培养与输送能力</h3>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">1. 本科生质量</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>985高校录取分数长期位列各省前1%。</li>'+
+          '<li>北大、清华：全国Top 0.1%；上交、复旦、浙大：Top 0.3%；中科大、南大、人大：Top 0.5%。</li>'+
+        '</ul>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">2. 研究生培养</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>985在全国硕博招生中占比超过55%。</li>'+
+          '<li>国家战略科技力量核心团队多由985培养（量子、天文、超算等）。</li>'+
+        '</ul>'+
+        '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">3. 国际化水平</h4>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>清华、北大进入QS前20–30；复旦、浙大、上交位于40–100区间；多数985位于100–300之间。</li>'+
+        '</ul>'+
+        '<h3 id="985-mission" style="margin:12px 0; font-size:18px; font-weight:700;">五、功能定位与使命</h3>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li><strong>国家战略科技力量核心</strong>：承担“神威”“天河”超算、高速铁路关键技术、核聚变、量子通信、北斗导航、高端生物医疗器械等重大项目。</li>'+
+          '<li><strong>国家人才培养高地</strong>：培养行业领军人才与科研骨干，企业与政府领域的高端人才来源集中。</li>'+
+          '<li><strong>区域经济创新引擎</strong>：如武汉光谷依托华科、武大；西安硬科技产业依托西工大、西电；杭州数字经济依托浙大。</li>'+
+        '</ul>'+
+        '<h3 id="985-competition" style="margin:12px 0; font-size:18px; font-weight:700;">六、竞争格局：头部—高潜三层结构</h3>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li><strong>头部阵营（Top Tier）</strong>：清华、北大、浙大、上交、复旦、中国科大；科研能力全球前列，国际合作强，资源集中。</li>'+
+          '<li><strong>第二梯队（Upper Middle Tier）</strong>：华中科技、北航、同济、南大、中山、厦大、东南；区域优势突出，学科带动产业发展。</li>'+
+          '<li><strong>区域潜力型（Regional Leaders）</strong>：川大、哈工大、兰大、山大、重大等；承担区域发展任务，在材料、能源等方向具独特优势。</li>'+
+        '</ul>'+
+        '<h3 id="985-challenges" style="margin:12px 0; font-size:18px; font-weight:700;">七、问题与挑战</h3>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li>国际竞争压力加大：顶尖人才流动受限，全球知名度仍低于欧美头部大学。</li>'+
+          '<li>学科结构趋同与同质化竞争：工科扩张，部分基础学科投入不足。</li>'+
+          '<li>科研成果转化效率不一致：制度不统一，地区产业吸纳能力不平衡。</li>'+
+          '<li>治理体系需优化：行政化倾向，学术自由度与科研管理机制仍需提升。</li>'+
+        '</ul>'+
+        '<h3 id="985-trends" style="margin:12px 0; font-size:18px; font-weight:700;">八、未来发展趋势（双一流2.0）</h3>'+
+        '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+          '<li><strong>国家实验室体系深度绑定</strong>：量子信息、先进制造、空天与深海、AI+生命科学等，高校成为国家战略科技力量中心。</li>'+
+          '<li><strong>人才体系从选拔到支持</strong>：提升博士待遇，完善青年学者长周期支持，强化国际化人才吸引机制。</li>'+
+          '<li><strong>区域创新枢纽化</strong>：北京顶尖科研中心；上海科创与产业融合；广深生物医药+AI；长三角制造业技术创新；中西部战略安全与基础科学突破。</li>'+
+          '<li><strong>大学治理现代化</strong>：去行政化、强化学术委员会、推进全流程科研管理改革。</li>'+
+          '<li><strong>参与全球科技治理</strong>：加入全球科研联盟、建立跨国科研平台、推动成果全球化应用。</li>'+
+        '</ul>'+
+        '<h3 id="985-conclusion" style="margin:12px 0; font-size:18px; font-weight:700;">九、结论</h3>'+
+        '<p style="color:#475569; line-height:1.8;">985高校已成为国家创新体系最重要的组成部分，在基础研究、工程技术突破、人才培养、全球合作等方面发挥不可替代作用。未来十年，在“双一流2.0”和全球科技竞争背景下，985高校将继续承担重大国家战略任务，推动关键核心技术、原创科学与人才培养实现突破，整体迈向世界一流大学前列。</p>';
+      const tocBox=document.getElementById('articleToc');
+      if(tocBox){
+        tocBox.style.display='block';
+        tocBox.innerHTML = '<div class="article-toc" id="toc985">'+
+          '<a class="article-toc-item active" href="#985-bg">研究背景与意义</a>'+
+          '<a class="article-toc-item" href="#985-system">体系概述</a>'+
+          '<a class="article-toc-item" href="#985-research">科研与创新</a>'+
+          '<a class="article-toc-item" href="#985-talent">人才培养</a>'+
+          '<a class="article-toc-item" href="#985-mission">功能定位</a>'+
+          '<a class="article-toc-item" href="#985-competition">竞争格局</a>'+
+          '<a class="article-toc-item" href="#985-challenges">问题与挑战</a>'+
+          '<a class="article-toc-item" href="#985-trends">未来趋势</a>'+
+          '<a class="article-toc-item" href="#985-conclusion">结论</a>'+
+        '</div>';
+      }
+      history.pushState(null,'', BASE + '/welcome/985');
+      setTimeout(function(){
+        document.querySelectorAll('.badge-grid .badge').forEach(function(b){
+          var img=b.querySelector('.avatar-img'); var fallback=b.querySelector('.avatar');
+          if(img){
+            img.addEventListener('error', function(){ img.style.display='none'; if(fallback){ fallback.style.display='flex'; } });
+            img.addEventListener('load', function(){ if(fallback){ fallback.style.display='none'; } });
+          }
+        });
+      }, 0);
+    }
+function render211(){
+  const box=document.getElementById('mainContent');
+  if(!box)return;
+  box.innerHTML = '<h2 style="margin:0 0 10px; font-size:22px; font-weight:800;">什么是211</h2>'+
+    '<h3 id="211-bg" style="margin:12px 0; font-size:18px; font-weight:700;">一、研究背景与意义</h3>'+
+    '<p style="color:#475569; line-height:1.8;">“211工程”启动于1995年，是中国在教育现代化早期阶段确立的首个高等教育重点建设工程，面向21世纪重点建设约100所高校及一批重点学科，提升高等教育整体水平与国际竞争力。全国原有112所211高校，覆盖面比985更广，在区域人才培养、科研支撑、公共服务和产业发展等方面具有不可替代作用。在“双一流”体系下，211与985不再继续扩容，但211高校依然是中国高等教育体系的中坚力量。</p>'+
+    '<p style="color:#475569; line-height:1.8;">本报告从体系结构、科研能力、人才培养、区域经济角色、问题与未来趋势等维度，系统分析211高校的现状与发展逻辑。</p>'+
+    '<h3 id="211-system" style="margin:12px 0; font-size:18px; font-weight:700;">二、211高校体系概述</h3>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">1. 数量与分布</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>总数：112所</li>'+
+    '<li>省级覆盖度：除海南外，中国所有省份均有211高校</li>'+
+    '<li>区域分布：东部约45%，中部约25%，西部约30%（211是西部高等教育体系核心支柱）</li>'+
+    '</ul>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">2. 多样化类型</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li><strong>综合研究型</strong>：代表院校如吉林大学、山东大学、郑州大学；体量大、学科齐全、承担省部级项目。</li>'+
+    '<li><strong>理工与工科强校</strong>：代表院校如北京理工大学、北京科技大学、天津大学、河海大学、武汉理工大学；产业黏性强，与制造业、材料、工程建设紧密相关。</li>'+
+    '<li><strong>财经政法类</strong>：代表院校如对外经济贸易大学、中央财经大学、上海财经大学、政法大学；服务国家经济治理体系与金融业。</li>'+
+    '<li><strong>师范类</strong>：代表院校如华南师范大学、东北师范大学、陕西师范大学；教育科学研究与教师培养中心。</li>'+
+    '<li><strong>农林类</strong>：代表院校如中国农业大学（双一流后进入更高序列）、南京农业大学、东北农业大学；服务农业科技与区域乡村发展。</li>'+
+    '<li><strong>民族类高校</strong>：代表院校如中央民族大学、西北民族大学、广西民族大学；民族地区人才培养与文化研究。</li>'+
+    '<li><strong>医学与医科类</strong>：代表院校如首都医科大学、南京医科大学等；区域医疗体系依托单位。</li>'+
+    '</ul>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">3. 建设特征</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>国家财政专项支持提升整体办学水平，强调区域均衡。</li>'+
+    '<li>相比985，更注重学科带动、省域经济服务、教学质量提升，形成“全国层级+地方高地”双重功能。</li>'+
+    '</ul>'+
+    '<h3 id="211-research" style="margin:12px 0; font-size:18px; font-weight:700;">三、科研与创新能力分析</h3>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">1. 科研经费与平台建设</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>头部211（如天津大学、大连理工、山东大学、吉林大学）科研经费达30–60亿元。</li>'+
+    '<li>中等规模的211科研经费一般在8–25亿元。</li>'+
+    '<li>拥有国家重点实验室、工程中心、博士点体系，是省级科技平台主体；在应用技术与工程科技领域尤其强（道路桥梁、土木、矿冶、环境、材料等）。</li>'+
+    '</ul>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">2. 科研产出能力</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>河海大学：水利工程高水平研究。</li>'+
+    '<li>电子科技大学、西安电子科技大学：通信、电子信息方向。</li>'+
+    '<li>北京理工大学：先进材料、兵器科学。</li>'+
+    '<li>文科产出在政策研究、区域治理、教育科学等方向具有显著优势。</li>'+
+    '</ul>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">3. 科技成果转化能力</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>与地方产业链结合紧密；许多211学校自建科技园，如天津大学科技园、大连理工大学盘锦创新平台、西北工业大学西安航天产业带。</li>'+
+    '<li>主攻技术成熟度中高段（TRL4–7）。</li>'+
+    '</ul>'+
+    '<h3 id="211-talent" style="margin:12px 0; font-size:18px; font-weight:700;">四、人才培养与就业输送</h3>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">1. 生源质量</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>211高校录取分数约位于省内前5–15%；头部211（如天大、大工、电科大）位于Top 3–5%；多数211位于Top 8–15%。</li>'+
+    '</ul>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">2. 人才培养特色</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>强调高质量教学与应用型能力培养，特色工科与专业学位研究生规模较大。</li>'+
+    '<li>地方产业需求导向明确，培养更贴近企业应用的技术与管理人才。</li>'+
+    '</ul>'+
+    '<h4 style="margin:10px 0; font-size:16px; font-weight:700;">3. 就业输送领域</h4>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>工程类：建筑、水利、交通、新材料、化工。</li>'+
+    '<li>信息类：通信、计算机、电子信息。</li>'+
+    '<li>政府与事业单位：大量中高级管理岗来源。</li>'+
+    '<li>区域新兴产业：AI、医药、智能制造等领域逐步提升。</li>'+
+    '</ul>'+
+    '<h3 id="211-regional" style="margin:12px 0; font-size:18px; font-weight:700;">五、区域功能定位</h3>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li><strong>区域科技创新核心</strong>：西部创新由川大、重大、西电、西农等牵动；华南产业升级依托华南理工、暨南大学、华工；辽宁振兴依赖大连理工、东北大学。</li>'+
+    '<li><strong>省域人才培养主力</strong>：多数省份中，211是本地最强学校，承担省域科研与人才任务。如河南：郑州大学；安徽：合肥工业大学；吉林：吉林大学；海南：无211。</li>'+
+    '<li><strong>城市文化与公共服务中心</strong>：大学文化促进城市创新氛围（如武汉、成都、长沙）；医学、法学、教育类211承担公共服务研究职能。</li>'+
+    '</ul>'+
+    '<h3 id="211-competition" style="margin:12px 0; font-size:18px; font-weight:700;">六、竞争格局：层级与梯队分析</h3>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li><strong>第一梯队（Top 211）</strong>：定位接近部分985，科研/生源接近全国前20–30；代表：天津大学、大连理工、华南理工、北京理工、电子科技大学、西安电子科技大学、东北大学等；特点：工科强校，承担国家重大工程项目，与制造业深度绑定。</li>'+
+    '<li><strong>第二梯队（Strong Regionals）</strong>：在省域具核心地位，综合实力强；代表：郑州大学、湖南大学、云南大学、合肥工业大学、西北农林科技大学、西南大学；特点：学科较全面，支撑区域经济发展。</li>'+
+    '<li><strong>第三梯队（Platform Builders）</strong>：在区域重要但科研水平中等偏上；代表：上海大学、河北大学、青海大学、宁夏大学等；特点：地方性强，承担省级科技与教育任务。</li>'+
+    '</ul>'+
+    '<h3 id="211-challenges" style="margin:12px 0; font-size:18px; font-weight:700;">七、存在的问题与挑战</h3>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li>与985的资源差距显著：经费、平台、人才引进能力差距明显，世界排名拉开距离。</li>'+
+    '<li>区域经济对学校影响较大：经济强区的211更易发展；西部与东北部分211受区域产业支撑不足制约。</li>'+
+    '<li>学科结构偏向工程与传统专业：工科扩张普遍；新兴交叉学科建设不足。</li>'+
+    '<li>人才流向压力：一线城市吸引力强，中西部211招聘与留才难；全球顶尖人才引进受限。</li>'+
+    '<li>部分学校科研管理较为行政化：创新激励不完善；成果转化制度与国际一流大学有差距。</li>'+
+    '</ul>'+
+    '<h3 id="211-trends" style="margin:12px 0; font-size:18px; font-weight:700;">八、未来发展趋势（双一流2.0）</h3>'+
+    '<ul style="color:#475569; line-height:1.8; padding-left:18px; margin:6px 0;">'+
+    '<li><strong>区域一流大学</strong>：推动省部共建高校升级，形成区域旗舰大学体系。</li>'+
+    '<li><strong>应用型科研增强</strong>：主攻制造业强国所需的工程技术，推动工程实验室与产学研平台共建。</li>'+
+    '<li><strong>本科教学质量核心化</strong>：推进卓越工程师2.0与一流本科教育，虚拟仿真实验室建设加速。</li>'+
+    '<li><strong>省域创新体系深度融入</strong>：高校与地方政府、产业链企业共同构建研发体系（如江苏、四川、广东等）。</li>'+
+    '<li><strong>特色化与差异化发展</strong>：民族类强化文化研究与人才培养；海洋、航空、交通类强化专业特长；农业类向“国家粮食安全科技力量”建设靠拢。</li>'+
+    '</ul>'+
+    '<h3 id="211-conclusion" style="margin:12px 0; font-size:18px; font-weight:700;">九、结论</h3>'+
+    '<p style="color:#475569; line-height:1.8;">211高校是中国高等教育体系最广泛也是最重要的中坚力量，承担地方经济发展、行业技术创新、人才培养和公共服务的主体角色。</p>'+
+    '<h3 style="margin:18px 0; font-size:18px; font-weight:800;">211高校名单</h3>'+
+    '<div id="grid211" class="badge-grid"></div>';
+  const tocBox=document.getElementById('articleToc');
+  if(tocBox){
+    tocBox.style.display='block';
+    tocBox.innerHTML = '<div class="article-toc" id="toc211">'+
+      '<a class="article-toc-item active" href="#211-bg">研究背景与意义</a>'+
+      '<a class="article-toc-item" href="#211-system">体系概述</a>'+
+      '<a class="article-toc-item" href="#211-research">科研与创新</a>'+
+      '<a class="article-toc-item" href="#211-talent">人才培养</a>'+
+      '<a class="article-toc-item" href="#211-regional">区域功能定位</a>'+
+      '<a class="article-toc-item" href="#211-competition">竞争格局</a>'+
+      '<a class="article-toc-item" href="#211-challenges">问题与挑战</a>'+
+      '<a class="article-toc-item" href="#211-trends">未来趋势</a>'+
+      '<a class="article-toc-item" href="#211-conclusion">结论</a>'+
+    '</div>';
+  }
+  history.pushState(null,'', BASE + '/welcome/211');
+  const apiBase = location.pathname.includes('huilanweb') ? '/huilanweb/api' : '/api';
+      const grid=document.getElementById('grid211');
+      const list=document.getElementById('list211');
+      if(grid){
+        (async function(){
+          async function renderFrom(arr){
+            grid.innerHTML = arr.map(function(u){ var n = typeof u === 'string' ? u : u.name; var src = BASE + '/assets/logos/' + n + '.png'; return '<div class="badge"><img class="avatar-img" src="'+src+'" alt="'+n+'"/><div class="avatar">'+n.slice(0,2)+'</div><div class="label">'+n+'</div></div>'; }).join('');
+            if(list){
+              var names = arr.map(function(u){ return typeof u === 'string' ? u : u.name; }).sort(function(a,b){ return a.localeCompare(b,'zh'); });
+              list.innerHTML = names.map(function(n){ return '<li>'+n+'</li>'; }).join('');
+            }
+            setTimeout(function(){
+              document.querySelectorAll('#grid211 .badge').forEach(function(b){ var img=b.querySelector('.avatar-img'); var fallback=b.querySelector('.avatar'); if(img){ img.addEventListener('error', function(){ img.style.display='none'; if(fallback){ fallback.style.display='flex'; } }); img.addEventListener('load', function(){ if(fallback){ fallback.style.display='none'; } }); } });
+            },0);
+          }
+          try{
+            let per = 100;
+            let resp = await fetch(apiBase + '/universities_basic?level=211&per_page='+per+'&page=1');
+            if(resp.ok){
+              const data = await resp.json();
+              let arr = data && data.data && Array.isArray(data.data.universities) ? data.data.universities : [];
+              const total = data && data.data && typeof data.data.total==='number' ? data.data.total : arr.length;
+              const pages = Math.ceil(total / per);
+              if(pages>1){
+                const reqs=[]; for(let p=2;p<=pages;p++){ reqs.push(fetch(apiBase + '/universities_basic?level=211&per_page='+per+'&page='+p)); }
+                const rsps = await Promise.all(reqs);
+                for(const r of rsps){ if(r.ok){ const d=await r.json(); const a=d && d.data && Array.isArray(d.data.universities) ? d.data.universities : []; arr = arr.concat(a); } }
+              }
+              if(arr.length>0){ await renderFrom(arr); return; }
+            }
+            resp = await fetch(apiBase + '/universities_basic?per_page='+per+'&page=1');
+            if(resp.ok){
+              const data2 = await resp.json();
+              let arr2 = data2 && data2.data && Array.isArray(data2.data.universities) ? data2.data.universities : [];
+              const total2 = data2 && data2.data && typeof data2.data.total==='number' ? data2.data.total : arr2.length;
+              const pages2 = Math.ceil(total2 / per);
+              if(pages2>1){
+                const reqs2=[]; for(let p=2;p<=pages2;p++){ reqs2.push(fetch(apiBase + '/universities_basic?per_page='+per+'&page='+p)); }
+                const rsps2 = await Promise.all(reqs2);
+                for(const r2 of rsps2){ if(r2.ok){ const d2=await r2.json(); const a2=d2 && d2.data && Array.isArray(d2.data.universities) ? d2.data.universities : []; arr2 = arr2.concat(a2); } }
+              }
+              if(arr2.length>0){ await renderFrom(arr2); return; }
+            }
+            const fallback = ['天津大学','大连理工大学','华南理工大学','北京理工大学','电子科技大学','西安电子科技大学','东北大学','郑州大学','合肥工业大学','西北农林科技大学','西南大学','上海大学','河北大学','青海大学','宁夏大学'];
+            await renderFrom(fallback);
+          }catch(e){
+            const fallback = ['天津大学','大连理工大学','华南理工大学','北京理工大学','电子科技大学','西安电子科技大学','东北大学','郑州大学','合肥工业大学','西北农林科技大学','西南大学','上海大学','河北大学','青海大学','宁夏大学'];
+            await renderFrom(fallback);
+          }
+        })();
+      }
+}
+    function renderHKMO(){
+      const box=document.getElementById('mainContent');
+      if(!box)return;
+      const tocBox=document.getElementById('articleToc'); if(tocBox){ tocBox.style.display='none'; tocBox.innerHTML=''; }
+      box.innerHTML = '<h2 style="margin:0 0 10px; font-size:22px; font-weight:800;">港澳高校</h2>'+
+        '<p style="color:#475569; line-height:1.8;">港澳地区高校具有国际化与多语言教学特色，长期与世界名校合作开展联合培养与科研合作，专业覆盖商科、金融、法律、工程、医学、艺术与人文等。</p>'+
+        '<p style="color:#475569; line-height:1.8;">高校强调通识教育、跨文化交流与实践能力培养，课程体系灵活，质量保障体系完善，区域内创新创业与金融服务生态对人才发展具有吸引力。</p>'+
+        '<p style="color:#475569; line-height:1.8;">招生与学费政策、资格认可与语言要求等与内地高校有所区别，建议关注各校官方信息与当年具体政策。</p>';
+      history.pushState(null,'', BASE + '/welcome/hkmo');
+    }
+    function renderOverseas(){
+      const box=document.getElementById('mainContent');
+      if(!box)return;
+      const tocBox=document.getElementById('articleToc'); if(tocBox){ tocBox.style.display='none'; tocBox.innerHTML=''; }
+      box.innerHTML = '<h2 style="margin:0 0 10px; font-size:22px; font-weight:800;">海外名校</h2>'+
+        '<p style="color:#475569; line-height:1.8;">海外名校拥有成熟的研究与教学体系，强调批判性思维、原创研究、学术诚信与跨学科合作，科研资源与国际交流机会丰富。</p>'+
+        '<p style="color:#475569; line-height:1.8;">申请通常涉及语言成绩、标化考试、文书与推荐信等，部分项目注重科研经历与实践能力；奖学金与资助渠道多样，需结合院系与项目具体情况。</p>'+
+        '<p style="color:#475569; line-height:1.8;">学习与生活需适应跨文化环境与签证、移民政策等制度差异，建议提前规划并关注学校与当地官方信息。</p>';
+      history.pushState(null,'', BASE + '/welcome/overseas');
+    }
+    function renderSpecialty(){
+      const box=document.getElementById('mainContent');
+      if(!box)return;
+      const tocBox=document.getElementById('articleToc'); if(tocBox){ tocBox.style.display='none'; tocBox.innerHTML=''; }
+      box.innerHTML = '<h2 style="margin:0 0 10px; font-size:22px; font-weight:800;">特色专业大学</h2>'+
+        '<p style="color:#475569; line-height:1.8;">特色专业大学通常在某些学科领域形成鲜明优势，如工程技术、医学、财经、师范、农业、艺术与体育等，依托重点学科与平台开展人才培养与科研创新。</p>'+
+        '<div style="margin-top:14px">'+
+        '<h3 id="specialty-eng" style="margin:10px 0; font-size:18px; font-weight:700;">工科</h3>'+
+        '<p style="color:#475569; line-height:1.8;">面向高端制造、信息与材料、新能源等领域，强调工程实践、产学研协同与平台支撑。</p>'+
+        '<h3 id="specialty-med" style="margin:10px 0; font-size:18px; font-weight:700;">医科</h3>'+
+        '<p style="color:#475569; line-height:1.8;">围绕临床医学与公共卫生等，突出临床教学体系与科研转化能力建设。</p>'+
+        '<h3 id="specialty-fin" style="margin:10px 0; font-size:18px; font-weight:700;">财经</h3>'+
+        '<p style="color:#475569; line-height:1.8;">聚焦经济、金融与管理，强调数据分析能力与实践案例训练。</p>'+
+        '<h3 id="specialty-normal" style="margin:10px 0; font-size:18px; font-weight:700;">师范</h3>'+
+        '<p style="color:#475569; line-height:1.8;">面向基础教育与教育研究，强调教育实践与课程改革能力。</p>'+
+        '<h3 id="specialty-agri" style="margin:10px 0; font-size:18px; font-weight:700;">农科</h3>'+
+        '<p style="color:#475569; line-height:1.8;">围绕现代农业、食品与生态，强调试验平台与区域服务能力。</p>'+
+        '<h3 id="specialty-art" style="margin:10px 0; font-size:18px; font-weight:700;">艺术</h3>'+
+        '<p style="color:#475569; line-height:1.8;">艺术与设计强调创作实践与跨学科融合，注重作品与展演。</p>'+
+        '<h3 id="specialty-sport" style="margin:10px 0; font-size:18px; font-weight:700;">体育</h3>'+
+        '<p style="color:#475569; line-height:1.8;">围绕竞技体育与健康科学，强调训练体系与科研支撑。</p>'+
+        '</div>';
+      history.pushState(null,'', BASE + '/welcome/specialty');
+    }
+    function renderLocal(){
+      const box=document.getElementById('mainContent');
+      if(!box)return;
+      const tocBox=document.getElementById('articleToc'); if(tocBox){ tocBox.style.display='none'; tocBox.innerHTML=''; }
+      box.innerHTML = '<h2 style="margin:0 0 10px; font-size:22px; font-weight:800;">地方特色大学</h2>'+
+        '<p style="color:#475569; line-height:1.8;">地方特色大学面向区域经济社会发展，以服务地方需求为导向，围绕优势产业与重点领域布局学科与专业，增强与地方政府、企业的协同创新与人才培养。</p>'+
+        '<div style="margin-top:14px">'+
+        '<h3 id="local-region" style="margin:10px 0; font-size:18px; font-weight:700;">区域服务</h3>'+
+        '<p style="color:#475569; line-height:1.8;">围绕地方发展战略，建设与区域产业结构匹配的人才与技术供给体系。</p>'+
+        '<h3 id="local-industry" style="margin:10px 0; font-size:18px; font-weight:700;">产业特色</h3>'+
+        '<p style="color:#475569; line-height:1.8;">结合重点产业布局优势学科与平台，促进成果转化与企业合作。</p>'+
+        '<h3 id="local-applied" style="margin:10px 0; font-size:18px; font-weight:700;">应用导向</h3>'+
+        '<p style="color:#475569; line-height:1.8;">突出实践教学与技术应用，培养高素质应用型人才。</p>'+
+        '</div>';
+      history.pushState(null,'', BASE + '/welcome/local');
+    }
+    function renderMilitary(){
+      const box=document.getElementById('mainContent');
+      if(!box)return;
+      const tocBox=document.getElementById('articleToc'); if(tocBox){ tocBox.style.display='none'; tocBox.innerHTML=''; }
+      box.innerHTML = '<h2 style="margin:0 0 10px; font-size:22px; font-weight:800;">军事院校</h2>'+
+        '<p style="color:#475569; line-height:1.8;">军事院校以国防与军事需求为导向，承担军队干部与专业技术人才培养任务，学科领域涵盖指挥、工程、信息、航空航天、医学、防化等。</p>'+
+        '<div style="margin-top:14px">'+
+        '<h3 id="military-command" style="margin:10px 0; font-size:18px; font-weight:700;">指挥类</h3>'+
+        '<p style="color:#475569; line-height:1.8;">突出体系作战与指挥训练，强调联合与协同能力培养。</p>'+
+        '<h3 id="military-engineering" style="margin:10px 0; font-size:18px; font-weight:700;">工程技术</h3>'+
+        '<p style="color:#475569; line-height:1.8;">涵盖兵器、材料、动力、无人系统等方向，强调工程实践。</p>'+
+        '<h3 id="military-info" style="margin:10px 0; font-size:18px; font-weight:700;">信息与电子</h3>'+
+        '<p style="color:#475569; line-height:1.8;">涉及通信、电子战、网络安全与人工智能等关键技术。</p>'+
+        '<h3 id="military-aero" style="margin:10px 0; font-size:18px; font-weight:700;">航空航天</h3>'+
+        '<p style="color:#475569; line-height:1.8;">覆盖飞行、航天工程与制导控制等领域，强调实战化训练。</p>'+
+        '<h3 id="military-med" style="margin:10px 0; font-size:18px; font-weight:700;">医学</h3>'+
+        '<p style="color:#475569; line-height:1.8;">聚焦战创伤救治、航空航天医学与防疫保障体系等。</p>'+
+        '<h3 id="military-cbrn" style="margin:10px 0; font-size:18px; font-weight:700;">防化与保障</h3>'+
+        '<p style="color:#475569; line-height:1.8;">涉及核生化防护、后勤与综合保障体系建设。</p>'+
+        '</div>';
+      history.pushState(null,'', BASE + '/welcome/military');
+    }
+    const cnItem = document.getElementById('itemCN');
+    if(cnItem){ cnItem.addEventListener('click', function(){ renderDir([{g:'核心计划', items:['什么是985','什么是211']},{g:'类型板块', items:[{g:'特色专业大学', items:['工科','医科','财经','师范','农科','艺术','体育']},{g:'地方特色大学', items:['区域服务','产业特色','应用导向']},{g:'军事院校', items:['指挥类','工程技术','信息与电子','航空航天','医学','防化与保障']}] }]); }); }
+    const hkmoItem = document.getElementById('itemHKMO');
+    if(hkmoItem){ hkmoItem.addEventListener('click', function(){ renderDir([{g:'香港高校', items:['综合类','理工类','商科与财经','艺术与人文']},{g:'澳门高校', items:['综合类','应用技术','商科与管理']}]); }); }
+    const overseasItem = document.getElementById('itemOverseas');
+    if(overseasItem){ overseasItem.addEventListener('click', function(){ renderDir([{g:'北美', items:['综合研究型','理工强校','商学院']},{g:'欧洲', items:['综合研究型','理工强校','商学院','艺术与设计']},{g:'亚洲', items:['综合研究型','理工强校']},{g:'大洋洲', items:['综合研究型','理工强校']}]); }); }
+    document.addEventListener('click',function(e){
+      const gt=e.target.closest('.dir-group-title');
+      if(!gt) return;
+      const exp=gt.getAttribute('aria-expanded')==='true';
+      gt.setAttribute('aria-expanded',exp?'false':'true');
+      const sib=gt.nextElementSibling;
+      if(sib){ sib.style.display=exp?'none':'block'; }
+    });
+    document.addEventListener('click', function(e){
+      const d=e.target.closest('.dir-item');
+      if(!d) return;
+      document.querySelectorAll('.dir-item').forEach(x=>x.classList.remove('active'));
+      d.classList.add('active');
+      const txt = d.textContent.trim();
+      if(txt==='什么是985'){ render985(); }
+      else if(txt==='什么是211'){ render211(); }
+      else if(txt==='特色专业大学'){ renderSpecialty(); }
+      else if(txt==='地方特色大学'){ renderLocal(); }
+      else if(txt==='军事院校'){ renderMilitary(); }
+      else if(txt==='港澳高校'){ renderHKMO(); }
+      else if(txt==='海外名校'){ renderOverseas(); }
+      else if(['工科','医科','财经','师范','农科','艺术','体育'].includes(txt)){
+        renderSpecialty();
+        const map={ '工科':'specialty-eng','医科':'specialty-med','财经':'specialty-fin','师范':'specialty-normal','农科':'specialty-agri','艺术':'specialty-art','体育':'specialty-sport' };
+        const id=map[txt];
+        history.pushState(null,'', BASE + '/welcome/specialty#'+id);
+        const el=document.getElementById(id); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+      else if(['区域服务','产业特色','应用导向'].includes(txt)){
+        renderLocal();
+        const map={ '区域服务':'local-region','产业特色':'local-industry','应用导向':'local-applied' };
+        const id=map[txt];
+        history.pushState(null,'', BASE + '/welcome/local#'+id);
+        const el=document.getElementById(id); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+      else if(['指挥类','工程技术','信息与电子','航空航天','医学','防化与保障'].includes(txt)){
+        renderMilitary();
+        const map={ '指挥类':'military-command','工程技术':'military-engineering','信息与电子':'military-info','航空航天':'military-aero','医学':'military-med','防化与保障':'military-cbrn' };
+        const id=map[txt];
+        history.pushState(null,'', BASE + '/welcome/military#'+id);
+        const el=document.getElementById(id); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+    });
+    document.addEventListener('DOMContentLoaded', function(){
+      const p = location.pathname;
+      if (p.endsWith('/welcome/985')){
+        renderDir([{g:'核心计划', items:['什么是985','什么是211']},{g:'类型板块', items:['特色专业大学','地方特色大学','军事院校']}]);
+        const side=document.getElementById('d1');
+        if(side){
+          Array.from(side.querySelectorAll('.dir-item')).forEach(el=>{ if(el.textContent.trim()==='什么是985'){ el.classList.add('active'); } });
+        }
+        render985();
+        const h=location.hash;
+        if(h){ const el=document.getElementById(h.slice(1)); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); } }
+      }
+      else if (p.endsWith('/welcome/211')){
+        renderDir([{g:'核心计划', items:['什么是985','什么是211']},{g:'类型板块', items:['特色专业大学','地方特色大学','军事院校']}]);
+        const side=document.getElementById('d1');
+        if(side){
+          Array.from(side.querySelectorAll('.dir-item')).forEach(el=>{ if(el.textContent.trim()==='什么是211'){ el.classList.add('active'); } });
+        }
+        render211();
+        const h=location.hash;
+        if(h){ const el=document.getElementById(h.slice(1)); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); } }
+      }
+      else if (p.endsWith('/welcome/specialty')){
+        renderDir([{g:'核心计划', items:['什么是985','什么是211']},{g:'类型板块', items:['特色专业大学','地方特色大学','军事院校']}]);
+        const side=document.getElementById('d1');
+        if(side){
+          Array.from(side.querySelectorAll('.dir-item')).forEach(el=>{ if(el.textContent.trim()==='特色专业大学'){ el.classList.add('active'); } });
+        }
+        renderSpecialty();
+        const h=location.hash;
+        if(h){ const el=document.getElementById(h.slice(1)); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); } }
+      }
+      else if (p.endsWith('/welcome/local')){
+        renderDir([{g:'核心计划', items:['什么是985','什么是211']},{g:'类型板块', items:['特色专业大学','地方特色大学','军事院校']}]);
+        const side=document.getElementById('d1');
+        if(side){
+          Array.from(side.querySelectorAll('.dir-item')).forEach(el=>{ if(el.textContent.trim()==='地方特色大学'){ el.classList.add('active'); } });
+        }
+        renderLocal();
+        const h=location.hash;
+        if(h){ const el=document.getElementById(h.slice(1)); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); } }
+      }
+      else if (p.endsWith('/welcome/military')){
+        renderDir([{g:'核心计划', items:['什么是985','什么是211']},{g:'类型板块', items:['特色专业大学','地方特色大学','军事院校']}]);
+        const side=document.getElementById('d1');
+        if(side){
+          Array.from(side.querySelectorAll('.dir-item')).forEach(el=>{ if(el.textContent.trim()==='军事院校'){ el.classList.add('active'); } });
+        }
+        renderMilitary();
+        const h=location.hash;
+        if(h){ const el=document.getElementById(h.slice(1)); if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); } }
+      }
+      else if (p.endsWith('/welcome/hkmo')){
+        renderDir(['港澳高校']);
+        const side=document.getElementById('d1');
+        if(side){
+          Array.from(side.querySelectorAll('.dir-item')).forEach(el=>{ if(el.textContent.trim()==='港澳高校'){ el.classList.add('active'); } });
+        }
+        renderHKMO();
+      }
+      else if (p.endsWith('/welcome/overseas')){
+        renderDir(['海外名校']);
+        const side=document.getElementById('d1');
+        if(side){
+          Array.from(side.querySelectorAll('.dir-item')).forEach(el=>{ if(el.textContent.trim()==='海外名校'){ el.classList.add('active'); } });
+        }
+        renderOverseas();
+      }
+    });
+  </script>
+  <div id="site-footer"></div>
+  <script src="top-nav.js"></script>
+  <script src="site-footer.js"></script>
+</body>
+</html>

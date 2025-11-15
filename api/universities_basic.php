@@ -31,7 +31,7 @@ try {
 
     // 读取参数（支持简单分页与筛选）
     $page = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
-    $per_page = isset($_GET['per_page']) ? max(1, min(100, intval($_GET['per_page']))) : 20;
+    $per_page = isset($_GET['per_page']) ? max(1, min(500, intval($_GET['per_page']))) : 20;
     $region = isset($_GET['region']) ? trim($_GET['region']) : null;
     $nature = isset($_GET['nature']) ? trim($_GET['nature']) : null;
     $level = isset($_GET['level']) ? trim($_GET['level']) : null;

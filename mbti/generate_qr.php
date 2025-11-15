@@ -10,7 +10,7 @@ if (!$type || !preg_match('/^[EI][SN][TF][JP]$/', $type)) { echo json_encode(['s
 $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
 $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 $base = strpos($_SERVER['REQUEST_URI'], '/huilanweb') !== false ? '/huilanweb' : '';
-$target = $scheme.'://' . $host . $base . '/mbti/result.php?type=' . $type;
+$target = $scheme.'://' . $host . $base . '/mbti/result?type=' . $type;
 $dir = __DIR__ . '/qrcodes';
 if (!is_dir($dir)) { @mkdir($dir, 0777, true); }
 $file = $dir . '/' . strtolower($type) . '.png';

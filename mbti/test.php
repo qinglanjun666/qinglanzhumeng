@@ -129,10 +129,11 @@
     }
     function saveAnswers(map){ try { localStorage.setItem('mbti_answers', JSON.stringify(map)); } catch {} }
 
+    const BASE = location.pathname.includes('huilanweb') ? '/huilanweb' : '';
     async function loadQuestions(){
       loadingEl.style.display = 'flex'; questionsEl.style.display = 'none';
       try {
-        const r = await fetch('/api/mbti/questions.php');
+        const r = await fetch(BASE + '/api/mbti/questions.php');
         if (!r.ok) throw new Error('题库接口返回异常 ' + r.status);
         const data = await r.json();
         allQuestions = data;
@@ -175,7 +176,7 @@
       }
     }
 
-    function goPage(n){ const base = '/mbti/test.php?page=' + n; location.href = base; }
+    function goPage(n){ const url = BASE + '/mbti/test.php?page=' + n; location.href = url; }
 
   function updateProgress(){
       const all = Array.isArray(allQuestions) ? allQuestions : [];
@@ -228,18 +229,19 @@
     async function submitAll(){
       statusEl.textContent = '校验中';
       try {
-        const r = await fetch('/api/mbti/questions.php'); const data = await r.json();
+        const r = await fetch(BASE + '/api/mbti/questions.php'); const data = await r.json();
         const ids = Array.isArray(data) ? data.map(x=>String(x.id)) : [];
         const map = loadAnswers();
         let missing = [];
         for (const id of ids){ if (map[id] === undefined || map[id] === null || isNaN(parseInt(map[id],10))) missing.push(id); }
         if (missing.length>0){ showError('你还有题目未完成，请返回继续作答'); statusEl.textContent = '未提交'; return; }
         statusEl.textContent = '提交中';
-        const resp = await fetch('/api/mbti/submit.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ answers: map }) });
+        const resp = await fetch(BASE + '/api/mbti/submit.php', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ answers: map }) });
         if (!resp.ok){ const txt = await resp.text(); throw new Error('提交失败 ' + resp.status + ' ' + txt); }
         const j = await resp.json(); if (!j || !j.type) throw new Error('返回缺少类型');
         localStorage.removeItem('mbti_answers');
-        location.href = '/mbti/result.php?type=' + encodeURIComponent(j.type);
+        const BASE = location.pathname.includes('huilanweb') ? '/huilanweb' : '';
+        location.href = BASE + '/mbti/result?type=' + encodeURIComponent(j.type);
       } catch(e){ showError(e.message); statusEl.textContent = '提交失败'; }
     }
 

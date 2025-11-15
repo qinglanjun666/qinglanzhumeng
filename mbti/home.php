@@ -48,7 +48,7 @@
         <li>多设备适配</li>
       </ul>
       <p class="tips">测试约需 10–15 分钟<br>每道题没有标准答案，只需凭直觉选择即可。</p>
-      <a href="/mbti/start" class="btn-primary" aria-label="开始你的性格旅程">🔮 开始你的性格旅程</a>
+      <a href="index.html" class="btn-primary" aria-label="开始你的性格测试">🔮 开始你的性格测试</a>
       <a href="/mbti/select" class="btn-secondary" aria-label="我已知自己的 MBTI">我已知自己的 MBTI · 选择我的 MBTI</a>
     </div>
   </div>
