@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MBTI 测试结果</title>
+  <link rel="stylesheet" href="/mbti/mbti.css">
+</head>
+<body>
+  <div class="mbti-wrap" style="padding:24px">
+    <main class="question-card" style="flex:initial;max-width:840px;margin:32px auto;background:#fff;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.06);padding:32px">
+      <h1 id="typeText" class="question-title" style="font-size:42px;margin-bottom:8px"></h1>
+      <p id="typeName" style="text-align:center;color:#4b5b83;margin:0 0 24px"></p>
+      <div id="bars" style="display:grid;grid-template-columns:1fr;gap:12px"></div>
+    </main>
+    <footer class="bottom-nav">
+      <a href="/mbti/index.html" class="btn outline">重新测试</a>
+    </footer>
+  </div>
+  <script>
+    const mapName = {
+      INFP: '调停者', INFJ:'提倡者', ENFP:'竞选者', ENFJ:'主人公',
+      INTP:'逻辑学家', INTJ:'建筑师', ENTP:'辩论家', ENTJ:'指挥官',
+      ISFP:'探险家', ISFJ:'守护者', ESFP:'表演者', ESFJ:'执政官',
+      ISTP:'鉴赏家', ISTJ:'物流师', ESTP:'企业家', ESTJ:'总经理'
+    };
+    function getQuery(k){const u=new URL(location.href);return u.searchParams.get(k)||'';}
+    function bar(label,left,right){
+      const w = 50;
+      const el = document.createElement('div');
+      el.innerHTML = '<div style="display:flex;justify-content:space-between;margin-bottom:4px;color:#4b5b83"><span>'+left+'</span><span>'+right+'</span></div><div style="height:10px;background:#eee;border-radius:6px;overflow:hidden"><div style="width:'+w+'%;height:100%;background:#6C9BF3"></div></div>';
+      const wrap = document.createElement('div');
+      wrap.appendChild(el);
+      return wrap;
+    }
+    document.addEventListener('DOMContentLoaded',()=>{
+      const type = (getQuery('type')||'').toUpperCase();
+      document.getElementById('typeText').textContent = type || 'UNKNOWN';
+      document.getElementById('typeName').textContent = mapName[type] || '你的类型';
+      const bars = document.getElementById('bars');
+      bars.appendChild(bar('EI','内向 (I)','外向 (E)'));
+      bars.appendChild(bar('SN','直觉 (N)','感觉 (S)'));
+      bars.appendChild(bar('TF','情感 (F)','思维 (T)'));
+      bars.appendChild(bar('JP','知觉 (P)','判断 (J)'));
+    });
+  </script>
+</body>
+</html>
